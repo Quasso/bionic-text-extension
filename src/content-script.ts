@@ -3,12 +3,15 @@ const DEBUG_CS = true;
 
 function sendMessage(message: string) {
     chrome.runtime.sendMessage({ message, CS_LOG_PREFIX }, (response) => {
-        console.log(response.farewell);
+        if (response) {
+            console.log(response);
+        }
     });
 
 }
 
 function initContentScript() {
+    sendMessage("hello");
     sendMessage("Content script initialised!");
 }
 

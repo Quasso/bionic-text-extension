@@ -11,7 +11,12 @@ chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
 });
 
-
+/**
+ *
+ * onClicked handler for contentScript
+ *
+ * Description: Listen for the user clicking the extension's icon
+ */
 chrome.action.onClicked.addListener((tab) => {
     if (tab) {
         chrome.scripting.executeScript({
@@ -20,3 +25,19 @@ chrome.action.onClicked.addListener((tab) => {
         });
     }
 });
+
+/**
+ *
+ * onMessage handler
+ *
+ * Description: for bi-directional communication from the contentScript once running
+ */
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+            "from the extension");
+        if (request.message === "hello")
+            sendResponse({ farewell: "goodbye" });
+    }
+);
