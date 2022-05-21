@@ -25,6 +25,18 @@ function sendMessage(message, type) {
         }
     });
 }
+function handleParagraph(para) {
+    const words = para.textContent.split(" ");
+    let newPara = '';
+    words.forEach((word) => {
+        const mid = Math.floor(word.length / 2);
+        const bioPart = word.slice(0, mid);
+        const remainder = word.slice(mid);
+        const formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+        newPara += ' ' + formattedWordHTML;
+    });
+    para.innerHTML = newPara;
+}
 /**
  *
  * Auto-grab Paragraphs on a matching page
@@ -36,7 +48,8 @@ function sendMessage(message, type) {
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
     paragraphs.forEach((paragraph) => {
-        sendMessage(paragraph.innerHTML.toString() || 'null', ITypesCS.action);
+        sendMessage('Handling paragraph...', ITypesCS.log);
+        handleParagraph(paragraph);
     });
 }
 /**

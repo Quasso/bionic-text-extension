@@ -28,7 +28,7 @@ function handleParagraph(para: any) {
         const bioPart = word.slice(0, mid);
         const remainder = word.slice(mid);
         const formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
-        newPara += formattedWordHTML;
+        newPara += ' ' + formattedWordHTML;
     });
     para.innerHTML = newPara;
 }
