@@ -27,6 +27,10 @@ module.exports = {
             patterns: [
                 {
                     from: path.join(__dirname, "../src/manifest.json"),
+                    to: path.join(__dirname, "../dist")
+                },
+                {
+                    from: path.join(__dirname, "../dist"),
                     to: path.join(__dirname, "../public")
                 }
             ]
