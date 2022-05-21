@@ -1,7 +1,10 @@
 const DEBUG = true;
 const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
 
-import { ITypes } from "./content-script";
+enum ITypesBG {
+    log,
+    action
+}
 
 /**
  *
@@ -44,6 +47,13 @@ chrome.runtime.onMessage.addListener(
         if (sender.tab) {
             smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix);
         }
-        smartLog(request.message, request.prefix);
+        switch (request.action) {
+            case ITypesBG.action:
+                console.log('do action!')
+                break;
+            case ITypesBG.log:
+                smartLog(request.message, request.prefix);
+                break;
+        }
     }
 );
