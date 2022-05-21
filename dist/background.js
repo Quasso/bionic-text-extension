@@ -35,7 +35,7 @@ chrome.action.onClicked.addListener((tab) => {
     if (tab) {
         chrome.scripting.executeScript({
             target: { tabId: tab.id || -1 },
-            files: ['contentScript.js']
+            files: ['content-script.js']
         });
     }
 });

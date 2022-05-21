@@ -10,7 +10,13 @@
     "action": {
         "browser_action": {
             "default_title": "Bionic Reader",
-            "default_popup": "bionic-popup.html"
+            "default_popup": "bionic-popup.html",
+            "icons": {
+                "16": "assets/br-icon-16x16.png",
+                "32": "assets/br-icon-32x32.png",
+                "48": "assets/br-icon-48x48.png",
+                "128": "assets/br-icon-128x128.png"
+            }
         }
     },
     "background": {

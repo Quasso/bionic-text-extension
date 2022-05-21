@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <clipPath id="clip-Bionic_Reader_Extension_-_Icon">
+      <rect width="1024" height="1024"/>
+    </clipPath>
+  </defs>
+  <g id="Bionic_Reader_Extension_-_Icon" data-name="Bionic Reader Extension - Icon" clip-path="url(#clip-Bionic_Reader_Extension_-_Icon)">
+    <rect id="Rectangle_1" data-name="Rectangle 1" width="1024" height="1024" rx="200" fill="#4834d4"/>
+    <text id="BR" transform="translate(43 692)" fill="#fff" font-size="500" font-family="PirulenRg-Bold, Pirulen" font-weight="700"><tspan x="0" y="0">BR</tspan></text>
+  </g>
+</svg>

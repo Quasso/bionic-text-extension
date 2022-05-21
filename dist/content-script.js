@@ -20,10 +20,10 @@ function sendMessage(message, type) {
 }
 function initContentScript() {
     sendMessage("Content script initialised!", ITypesCS.log);
-    // const paragraphs = document.querySelectorAll('body p');
-    // paragraphs.forEach((paragraph: any) => {
-    //     sendMessage(paragraph.innerHTML.toString() || 'null', ITypes.action);
-    // });
+    const paragraphs = document.querySelectorAll('body p');
+    paragraphs.forEach((paragraph) => {
+        sendMessage(paragraph.innerHTML.toString() || 'null', ITypesCS.action);
+    });
 }
 initContentScript();
 
