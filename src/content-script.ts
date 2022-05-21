@@ -5,6 +5,8 @@ let isInit = false;
 let originalParagraphValues: Array<string> = [];
 let bionicParagraphValues: Array<string> = [];
 
+let wordIndex: number, paragraphIndex: number = 0;
+
 enum ITypesCS {
     log,
     action
@@ -27,12 +29,12 @@ function sendMessage(message: string, type?: ITypesCS) {
     });
 }
 
-function parseBionic(paragraph: Element): string | undefined {
+function parseBionic(paragraph: Element) {
     let paragraphBionic: string = '';
 
     if (paragraph['textContent'] != null) {
-        const words = paragraph.textContent.split(" ");
-        sendMessage('Processing paragraph...');
+        const words: Array<string> = paragraph.textContent.split(" ");
+
         words.forEach((word: string, index: number) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
@@ -41,26 +43,27 @@ function parseBionic(paragraph: Element): string | undefined {
 
             formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
-            sendMessage(`Processed word ${index}...`);
-
+            // sendMessage(`Processed word ${index}...`);
+            wordIndex++;
         });
 
         originalParagraphValues.push(paragraph.textContent as string);
         bionicParagraphValues.push(paragraphBionic as string);
 
         sendMessage('Completed a paragraph!');
-        return paragraphBionic;
+        paragraph.innerHTML = paragraphBionic;
     }
+    paragraphIndex++;
 }
 
 function toggleBionic() {
-    sendMessage('Toggling bionic...', ITypesCS.log);
+    sendMessage('Toggling bionic...');
 
 }
 
 function convertPageText(paragraphs: NodeListOf<Element>) {
     paragraphs.forEach((paragraph: Element) => {
-        sendMessage('Handling paragraph...', ITypesCS.log);
+        sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
     isInit = true;
@@ -77,6 +80,7 @@ function convertPageText(paragraphs: NodeListOf<Element>) {
 function autoGrabParagraphs() {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
+    sendMessage(`Is init? ${isInit}`);
     if (!isInit) {
         convertPageText(paragraphs);
     } else {
@@ -92,7 +96,7 @@ function autoGrabParagraphs() {
  *
  */
 function initContentScript() {
-    sendMessage("Content script initialised!", ITypesCS.log);
+    sendMessage("Content script initialised!");
     autoGrabParagraphs();
 }
 

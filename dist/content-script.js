@@ -47,7 +47,7 @@ function parseBionic(paragraph) {
         originalParagraphValues.push(paragraph.textContent);
         bionicParagraphValues.push(paragraphBionic);
         sendMessage('Completed a paragraph!');
-        return paragraphBionic;
+        paragraph.innerHTML = paragraphBionic;
     }
 }
 function toggleBionic() {
