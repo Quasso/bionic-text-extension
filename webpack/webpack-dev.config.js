@@ -23,5 +23,15 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
-    }
+    },
+    plugins: [
+        new CopyPlugin({
+            patterns: [
+                {
+                    from: path.join(__dirname, "../src/manifest.json"),
+                    to: path.join(__dirname, "../dist")
+                }
+            ]
+        }),
+    ],
 };
