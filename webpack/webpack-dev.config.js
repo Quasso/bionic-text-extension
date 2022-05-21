@@ -41,7 +41,15 @@ module.exports = {
                     to: path.join(__dirname, "../dist")
                 },
                 {
-                    from: path.resolve(__dirname, "..", "assets/br-icon-**"),
+                    from: path.resolve(__dirname, "..", "src/bionic-popup.css"),
+                    to: path.join(__dirname, "../dist")
+                },
+                {
+                    from: path.resolve(__dirname, "..", "src/bre.css"),
+                    to: path.join(__dirname, "../dist")
+                },
+                {
+                    from: path.resolve(__dirname, "..", "assets/compiled/bio-**.png"),
                     to: path.join(__dirname, "../dist")
                 }
             ]

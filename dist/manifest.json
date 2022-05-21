@@ -1,7 +1,7 @@
 {
     "name": "Bionic Reader Extension",
     "description": "A new concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "manifest_version": 3,
     "permissions": [
         "activeTab",
@@ -10,12 +10,8 @@
     "action": {
         "browser_action": {
             "default_title": "Bionic Reader",
-            "default_popup": "bionic-popup.html",
             "icons": {
-                "16": "assets/br-icon-16x16.png",
-                "32": "assets/br-icon-32x32.png",
-                "48": "assets/br-icon-48x48.png",
-                "128": "assets/br-icon-128x128.png"
+                "128": "assets/compiled/bio-128.png"
             }
         }
     },
@@ -33,6 +29,9 @@
                 "https://*.economist.com/*",
                 "https://*.nytimes.com/*",
                 "https://*.wsj.com/*"
+            ],
+            "css": [
+                "bre.css"
             ],
             "js": [
                 "content-script.js"
