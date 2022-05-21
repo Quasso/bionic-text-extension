@@ -1,15 +1,15 @@
 let CS_LOG_PREFIX = "[Bionic Reader Extension: CS]";
 const DEBUG_CS = true;
 
-function smartLogCS(message: string) {
-    if (DEBUG_CS) {
-        console.debug(CS_LOG_PREFIX + ' ' + message);
-    }
+function sendMessage(message: string) {
+    chrome.runtime.sendMessage({ message, CS_LOG_PREFIX }, (response) => {
+        console.log(response.farewell);
+    });
+
 }
 
 function initContentScript() {
-    smartLogCS("Content script initialised!");
-    console.log('test')
+    sendMessage("Content script initialised!");
 }
 
 initContentScript();
