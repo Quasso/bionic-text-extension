@@ -15,7 +15,6 @@ function sendMessage(message) {
     });
 }
 function initContentScript() {
-    sendMessage("hello");
     sendMessage("Content script initialised!");
 }
 initContentScript();

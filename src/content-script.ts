@@ -11,7 +11,6 @@ function sendMessage(message: string) {
 }
 
 function initContentScript() {
-    sendMessage("hello");
     sendMessage("Content script initialised!");
 }
 

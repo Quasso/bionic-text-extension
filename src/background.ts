@@ -34,10 +34,9 @@ chrome.action.onClicked.addListener((tab) => {
  */
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        console.log(sender.tab ?
-            "from a content script:" + sender.tab.url :
-            "from the extension");
-        if (request.message === "hello")
-            sendResponse({ farewell: "goodbye" });
+        if (sender.tab) {
+            smartLog(`Received message from tab with address: ${sender.tab.url}`);
+        }
+        smartLog(request.message);
     }
 );
