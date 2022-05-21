@@ -8,8 +8,8 @@ var __webpack_exports__ = {};
 let CS_LOG_PREFIX = "[BRE: contentScript via background]";
 let isActive = false;
 let isInit = false;
-let originalParagraphValues;
-let bionicParagraphValues;
+let originalParagraphValues = [];
+let bionicParagraphValues = [];
 var ITypesCS;
 (function (ITypesCS) {
     ITypesCS[ITypesCS["log"] = 0] = "log";
@@ -44,8 +44,8 @@ function parseBionic(paragraph) {
             paragraphBionic += ' ' + formattedWordHTML;
             sendMessage(`Processed word ${index}...`);
         });
-        // originalParagraphValues.push(paragraph.textContent as string);
-        // bionicParagraphValues.push(paragraphBionic as string);
+        originalParagraphValues.push(paragraph.textContent);
+        bionicParagraphValues.push(paragraphBionic);
         sendMessage('Completed a paragraph!');
         return paragraphBionic;
     }

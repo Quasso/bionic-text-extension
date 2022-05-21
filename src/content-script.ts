@@ -2,8 +2,8 @@ let CS_LOG_PREFIX = "[BRE: contentScript via background]";
 let isActive = false;
 let isInit = false;
 
-let originalParagraphValues: Array<string>;
-let bionicParagraphValues: Array<string>;
+let originalParagraphValues: Array<string> = [];
+let bionicParagraphValues: Array<string> = [];
 
 enum ITypesCS {
     log,
@@ -45,8 +45,9 @@ function parseBionic(paragraph: Element): string | undefined {
 
         });
 
-        // originalParagraphValues.push(paragraph.textContent as string);
-        // bionicParagraphValues.push(paragraphBionic as string);
+        originalParagraphValues.push(paragraph.textContent as string);
+        bionicParagraphValues.push(paragraphBionic as string);
+
         sendMessage('Completed a paragraph!');
         return paragraphBionic;
     }
