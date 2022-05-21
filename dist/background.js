@@ -49,9 +49,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (sender.tab) {
         smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix);
     }
-    switch (request.action) {
+    smartLog(request.type);
+    switch (request.type) {
         case ITypesBG.action:
-            console.log('do action!');
+            smartLog('do action!');
             break;
         case ITypesBG.log:
             smartLog(request.message, request.prefix);
