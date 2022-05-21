@@ -7,9 +7,14 @@ var __webpack_exports__ = {};
 
 const DEBUG = true;
 const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
+/**
+ *
+ * @param message [string] the message to log
+ * @param prefix [string] optional: a prefix to use instead of the default
+ */
 function smartLog(message, prefix) {
     if (DEBUG) {
-        console.log(prefix || DEFAULT_LOG_PREFIX + ' ' + message);
+        console.log((prefix || DEFAULT_LOG_PREFIX) + ' ' + message);
     }
 }
 chrome.runtime.onInstalled.addListener(() => {
@@ -37,9 +42,9 @@ chrome.action.onClicked.addListener((tab) => {
  */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (sender.tab) {
-        smartLog(`Received message from tab with address: ${sender.tab.url}`);
+        smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix);
     }
-    smartLog(request.message);
+    smartLog(request.message, request.prefix);
 });
 
 /******/ })()
