@@ -33,7 +33,7 @@ function parseBionic(paragraph: Element): string | undefined {
     if (paragraph['textContent'] != null) {
         const words = paragraph.textContent.split(" ");
         sendMessage('Processing paragraph...');
-        words.forEach((word: string) => {
+        words.forEach((word: string, index: number) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
             const bioPart = word.slice(0, mid);
@@ -41,10 +41,13 @@ function parseBionic(paragraph: Element): string | undefined {
 
             formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
+            sendMessage(`Processed word ${index}...`);
+
         });
 
-        originalParagraphValues.push(paragraph.textContent as string);
-        bionicParagraphValues.push(paragraphBionic as string);
+        // originalParagraphValues.push(paragraph.textContent as string);
+        // bionicParagraphValues.push(paragraphBionic as string);
+        sendMessage('Completed a paragraph!');
         return paragraphBionic;
     }
 }

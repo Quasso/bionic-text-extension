@@ -35,16 +35,18 @@ function parseBionic(paragraph) {
     if (paragraph['textContent'] != null) {
         const words = paragraph.textContent.split(" ");
         sendMessage('Processing paragraph...');
-        words.forEach((word) => {
+        words.forEach((word, index) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
             const bioPart = word.slice(0, mid);
             const remainder = word.slice(mid);
             formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
+            sendMessage(`Processed word ${index}...`);
         });
-        originalParagraphValues.push(paragraph.textContent);
-        bionicParagraphValues.push(paragraphBionic);
+        // originalParagraphValues.push(paragraph.textContent as string);
+        // bionicParagraphValues.push(paragraphBionic as string);
+        sendMessage('Completed a paragraph!');
         return paragraphBionic;
     }
 }
@@ -54,7 +56,7 @@ function toggleBionic() {
 function convertPageText(paragraphs) {
     paragraphs.forEach((paragraph) => {
         sendMessage('Handling paragraph...', ITypesCS.log);
-        // paragraph.innerHTML = parseBionic(paragraph);
+        parseBionic(paragraph);
     });
     isInit = true;
 }
