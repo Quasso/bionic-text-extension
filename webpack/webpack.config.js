@@ -26,7 +26,7 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 {
-                    from: path.join(__dirname, "../src"),
+                    from: path.join(__dirname, "../src/manifest.json"),
                     to: path.join(__dirname, "../public")
                 }
             ]
