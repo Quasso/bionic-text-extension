@@ -29,7 +29,7 @@
                 "https://*.wsj.com/*"
             ],
             "js": [
-                "contentScript.js"
+                "content-script.js"
             ]
         }
     ]
