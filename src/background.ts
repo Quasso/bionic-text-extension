@@ -1,14 +1,22 @@
-const debug = true;
-let BG_LOG_PREFIX = "[Bionic Reader Extension: BG]";
+const DEBUG = true;
+const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
 
-function smartLogBG(message: string) {
-    if (debug) {
-        console.debug(BG_LOG_PREFIX + ' ' + message);
+function smartLog(message: string, prefix?: string) {
+    if (DEBUG) {
+        console.log(prefix || DEFAULT_LOG_PREFIX + ' ' + message);
     }
 }
 
-function selectArticle() {
-    smartLogBG('Attempting to auto-select the text to transform...');
-}
+chrome.runtime.onInstalled.addListener(() => {
+    smartLog('Initialised successfully.');
+});
 
-selectArticle();
+
+chrome.action.onClicked.addListener((tab) => {
+    if (tab) {
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id || -1 },
+            files: ['contentScript.js']
+        });
+    }
+});

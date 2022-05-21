@@ -1,7 +1,8 @@
 let CS_LOG_PREFIX = "[Bionic Reader Extension: CS]";
+const DEBUG_CS = true;
 
 function smartLogCS(message: string) {
-    if (debug) {
+    if (DEBUG_CS) {
         console.debug(CS_LOG_PREFIX + ' ' + message);
     }
 }
