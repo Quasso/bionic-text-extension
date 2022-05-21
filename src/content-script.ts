@@ -1,4 +1,9 @@
-let CS_LOG_PREFIX = "[Bionic Reader Extension: CS via BG]";
+let CS_LOG_PREFIX = "[BRE: contentScript via background]";
+let isActive = false;
+let isInit = false;
+
+let originalParagraphValues: Array<string>;
+let bionicParagraphValues: Array<string>;
 
 enum ITypesCS {
     log,
@@ -12,7 +17,9 @@ enum ITypesCS {
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
-function sendMessage(message: string, type: ITypesCS) {
+function sendMessage(message: string, type?: ITypesCS) {
+    !type ? type = ITypesCS.log : console.log('Nothing to see here');
+
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type }, (response) => {
         if (response) {
             console.log(response);
@@ -20,17 +27,39 @@ function sendMessage(message: string, type: ITypesCS) {
     });
 }
 
-function handleParagraph(para: any) {
-    const words = para.textContent.split(" ");
-    let newPara: string = '';
-    words.forEach((word: string) => {
-        const mid = Math.floor(word.length / 2);
-        const bioPart = word.slice(0, mid);
-        const remainder = word.slice(mid);
-        const formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
-        newPara += ' ' + formattedWordHTML;
+function parseBionic(paragraph: Element): string | undefined {
+    let paragraphBionic: string = '';
+
+    if (paragraph['textContent'] != null) {
+        const words = paragraph.textContent.split(" ");
+        sendMessage('Processing paragraph...');
+        words.forEach((word: string) => {
+            let formattedWordHTML = '';
+            const mid = Math.floor(word.length / 2);
+            const bioPart = word.slice(0, mid);
+            const remainder = word.slice(mid);
+
+            formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+            paragraphBionic += ' ' + formattedWordHTML;
+        });
+
+        originalParagraphValues.push(paragraph.textContent as string);
+        bionicParagraphValues.push(paragraphBionic as string);
+        return paragraphBionic;
+    }
+}
+
+function toggleBionic() {
+    sendMessage('Toggling bionic...', ITypesCS.log);
+
+}
+
+function convertPageText(paragraphs: NodeListOf<Element>) {
+    paragraphs.forEach((paragraph: Element) => {
+        sendMessage('Handling paragraph...', ITypesCS.log);
+        parseBionic(paragraph);
     });
-    para.innerHTML = newPara;
+    isInit = true;
 }
 
 /**
@@ -42,11 +71,13 @@ function handleParagraph(para: any) {
  *
  */
 function autoGrabParagraphs() {
-    const paragraphs = document.querySelectorAll('body p');
-    paragraphs.forEach((paragraph: any) => {
-        sendMessage('Handling paragraph...', ITypesCS.log);
-        handleParagraph(paragraph);
-    });
+    const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
+    sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
+    if (!isInit) {
+        convertPageText(paragraphs);
+    } else {
+        toggleBionic();
+    }
 }
 
 /**

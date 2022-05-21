@@ -5,7 +5,11 @@ var __webpack_exports__ = {};
   !*** ./src/content-script.ts ***!
   \*******************************/
 
-let CS_LOG_PREFIX = "[Bionic Reader Extension: CS via BG]";
+let CS_LOG_PREFIX = "[BRE: contentScript via background]";
+let isActive = false;
+let isInit = false;
+let originalParagraphValues;
+let bionicParagraphValues;
 var ITypesCS;
 (function (ITypesCS) {
     ITypesCS[ITypesCS["log"] = 0] = "log";
@@ -19,23 +23,40 @@ var ITypesCS;
  * @param type [ITypesCS] the type of event we're sending
  */
 function sendMessage(message, type) {
+    !type ? type = ITypesCS.log : console.log('Nothing to see here');
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type }, (response) => {
         if (response) {
             console.log(response);
         }
     });
 }
-function handleParagraph(para) {
-    const words = para.textContent.split(" ");
-    let newPara = '';
-    words.forEach((word) => {
-        const mid = Math.floor(word.length / 2);
-        const bioPart = word.slice(0, mid);
-        const remainder = word.slice(mid);
-        const formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
-        newPara += ' ' + formattedWordHTML;
+function parseBionic(paragraph) {
+    let paragraphBionic = '';
+    if (paragraph['textContent'] != null) {
+        const words = paragraph.textContent.split(" ");
+        sendMessage('Processing paragraph...');
+        words.forEach((word) => {
+            let formattedWordHTML = '';
+            const mid = Math.floor(word.length / 2);
+            const bioPart = word.slice(0, mid);
+            const remainder = word.slice(mid);
+            formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+            paragraphBionic += ' ' + formattedWordHTML;
+        });
+        originalParagraphValues.push(paragraph.textContent);
+        bionicParagraphValues.push(paragraphBionic);
+        return paragraphBionic;
+    }
+}
+function toggleBionic() {
+    sendMessage('Toggling bionic...', ITypesCS.log);
+}
+function convertPageText(paragraphs) {
+    paragraphs.forEach((paragraph) => {
+        sendMessage('Handling paragraph...', ITypesCS.log);
+        // paragraph.innerHTML = parseBionic(paragraph);
     });
-    para.innerHTML = newPara;
+    isInit = true;
 }
 /**
  *
@@ -47,10 +68,13 @@ function handleParagraph(para) {
  */
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
-    paragraphs.forEach((paragraph) => {
-        sendMessage('Handling paragraph...', ITypesCS.log);
-        handleParagraph(paragraph);
-    });
+    sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
+    if (!isInit) {
+        convertPageText(paragraphs);
+    }
+    else {
+        toggleBionic();
+    }
 }
 /**
  *

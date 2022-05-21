@@ -6,7 +6,7 @@ var __webpack_exports__ = {};
   \***************************/
 
 const DEBUG = true;
-const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
+const DEFAULT_LOG_PREFIX = "[BRE: background]";
 var ITypesBG;
 (function (ITypesBG) {
     ITypesBG[ITypesBG["log"] = 0] = "log";
