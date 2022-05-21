@@ -6,7 +6,7 @@ module.exports = {
     devtool: 'cheap-module-source-map',
     entry: {
         background: path.resolve(__dirname, "..", "src/background.ts"),
-        contentScript: path.resolve(__dirname, "..", "src/contentScript.ts"),
+        contentScript: path.resolve(__dirname, "..", "src/content-script.ts")
     },
     module: {
         rules: [
@@ -23,19 +23,5 @@ module.exports = {
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js'],
-    },
-    plugins: [
-        new CopyPlugin({
-            patterns: [
-                {
-                    from: path.join(__dirname, "../src/manifest.json"),
-                    to: path.join(__dirname, "../dist")
-                },
-                {
-                    from: path.join(__dirname, "../dist"),
-                    to: path.join(__dirname, "../public")
-                }
-            ]
-        }),
-    ],
+    }
 };

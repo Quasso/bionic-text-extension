@@ -1,13 +1,14 @@
-let active = false;
 const debug = true;
-const LOG_PREFIX = "[Bionic Reader Extension]";
+let BG_LOG_PREFIX = "[Bionic Reader Extension: BG]";
 
-function smartLog(message: string) {
+function smartLogBG(message: string) {
     if (debug) {
-        console.debug(LOG_PREFIX + ' ' + message);
+        console.debug(BG_LOG_PREFIX + ' ' + message);
     }
 }
 
 function selectArticle() {
-    smartLog('Attempting to auto-select the text to transform...');
+    smartLogBG('Attempting to auto-select the text to transform...');
 }
+
+selectArticle();
