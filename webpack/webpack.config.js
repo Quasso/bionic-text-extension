@@ -5,7 +5,7 @@ module.exports = {
     mode: "production",
     devtool: 'cheap-module-source-map',
     entry: {
-        background: path.resolve(__dirname, "..", "src/background.ts"),
+        background: path.resolve(__dirname, "..", "src/**"),
     },
     module: {
         rules: [

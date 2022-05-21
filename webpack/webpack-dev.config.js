@@ -6,6 +6,7 @@ module.exports = {
     devtool: 'cheap-module-source-map',
     entry: {
         background: path.resolve(__dirname, "..", "src/background.ts"),
+        contentScript: path.resolve(__dirname, "..", "src/contentScript.ts"),
     },
     module: {
         rules: [

@@ -1,0 +1,1 @@
+{"version":3,"file":"background.js","mappings":";;;;;;;AAAA;AAEA;AAEA","sources":["webpack://bionic-reader-extension/./src/contentScript.ts"],"sourcesContent":["// coming soon\n\nfunction placeholderCS() {\n\n}"],"names":[],"sourceRoot":""}
