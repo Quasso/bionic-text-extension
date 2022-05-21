@@ -1,6 +1,8 @@
 const DEBUG = true;
 const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
 
+import { ITypes } from "./content-script";
+
 /**
  *
  * @param message [string] the message to log

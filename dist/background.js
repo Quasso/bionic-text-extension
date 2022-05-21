@@ -1,10 +1,14 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it uses a non-standard name for the exports (exports).
+(() => {
+var exports = __webpack_exports__;
 /*!***************************!*\
   !*** ./src/background.ts ***!
   \***************************/
 
+Object.defineProperty(exports, "__esModule", ({ value: true }));
 const DEBUG = true;
 const DEFAULT_LOG_PREFIX = "[Bionic Reader Extension: BG]";
 /**
@@ -46,6 +50,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     smartLog(request.message, request.prefix);
 });
+
+})();
 
 /******/ })()
 ;
