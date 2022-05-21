@@ -20,6 +20,19 @@ function sendMessage(message: string, type: ITypesCS) {
     });
 }
 
+function handleParagraph(para: any) {
+    const words = para.textContent.split(" ");
+    let newPara: string = '';
+    words.forEach((word: string) => {
+        const mid = Math.floor(word.length / 2);
+        const bioPart = word.slice(0, mid);
+        const remainder = word.slice(mid);
+        const formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+        newPara += formattedWordHTML;
+    });
+    para.innerHTML = newPara;
+}
+
 /**
  *
  * Auto-grab Paragraphs on a matching page
@@ -31,7 +44,8 @@ function sendMessage(message: string, type: ITypesCS) {
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
     paragraphs.forEach((paragraph: any) => {
-        sendMessage(paragraph.innerHTML.toString() || 'null', ITypesCS.log);
+        sendMessage('Handling paragraph...', ITypesCS.log);
+        handleParagraph(paragraph);
     });
 }
 

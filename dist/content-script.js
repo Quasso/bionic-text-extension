@@ -11,6 +11,13 @@ var ITypesCS;
     ITypesCS[ITypesCS["log"] = 0] = "log";
     ITypesCS[ITypesCS["action"] = 1] = "action";
 })(ITypesCS || (ITypesCS = {}));
+/**
+ *
+ * Send a message to another part of the extension
+ *
+ * @param message [string] the message to log (if any)
+ * @param type [ITypesCS] the type of event we're sending
+ */
 function sendMessage(message, type) {
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type }, (response) => {
         if (response) {
@@ -18,15 +25,32 @@ function sendMessage(message, type) {
         }
     });
 }
-function initContentScript() {
-    sendMessage("Content script initialised!", ITypesCS.log);
-}
+/**
+ *
+ * Auto-grab Paragraphs on a matching page
+ *
+ * Description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
+ * so that it can be parsed/formatted!
+ *
+ */
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
     paragraphs.forEach((paragraph) => {
-        sendMessage(paragraph.innerHTML.toString() || 'null', ITypesCS.log);
+        sendMessage(paragraph.innerHTML.toString() || 'null', ITypesCS.action);
     });
 }
+/**
+ *
+ * Initialise the content-script
+ *
+ * Description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
+ *
+ */
+function initContentScript() {
+    sendMessage("Content script initialised!", ITypesCS.log);
+    autoGrabParagraphs();
+}
+// this will only happen on pages matching the content-scripts "matches" list of URLs for now
 initContentScript();
 
 /******/ })()
