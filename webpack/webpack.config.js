@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+// const ts-loader = require('ts-loader');
 
 module.exports = {
     mode: "production",
