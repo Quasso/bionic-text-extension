@@ -10,6 +10,7 @@ let isActive = false;
 let isInit = false;
 let originalParagraphValues = [];
 let bionicParagraphValues = [];
+let wordIndex, paragraphIndex = 0;
 var ITypesCS;
 (function (ITypesCS) {
     ITypesCS[ITypesCS["log"] = 0] = "log";
@@ -17,8 +18,9 @@ var ITypesCS;
 })(ITypesCS || (ITypesCS = {}));
 /**
  *
- * Send a message to another part of the extension
+ * Helper function to communicate with background.js primarily
  *
+ * @description Send a message to another part of the extension
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
@@ -34,7 +36,6 @@ function parseBionic(paragraph) {
     let paragraphBionic = '';
     if (paragraph['textContent'] != null) {
         const words = paragraph.textContent.split(" ");
-        sendMessage('Processing paragraph...');
         words.forEach((word, index) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
@@ -42,20 +43,29 @@ function parseBionic(paragraph) {
             const remainder = word.slice(mid);
             formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
-            sendMessage(`Processed word ${index}...`);
+            wordIndex++;
         });
         originalParagraphValues.push(paragraph.textContent);
         bionicParagraphValues.push(paragraphBionic);
-        sendMessage('Completed a paragraph!');
+        sendMessage('Completed a paragraph...');
         paragraph.innerHTML = paragraphBionic;
+        sendMessage('DOM updated successfully.');
     }
+    paragraphIndex++;
 }
 function toggleBionic() {
-    sendMessage('Toggling bionic...', ITypesCS.log);
+    sendMessage('Toggling bionic...');
 }
+/**
+ *
+ * Convert Page Text
+ *
+ * @description accepts an array of HTML elements and iterates over them to run the parser
+ * @param paragraphs [NodeListOf<Element | HTMLParagraphElement] a list of elements on a matching page with the <p> tag!
+ */
 function convertPageText(paragraphs) {
     paragraphs.forEach((paragraph) => {
-        sendMessage('Handling paragraph...', ITypesCS.log);
+        sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
     isInit = true;
@@ -64,13 +74,14 @@ function convertPageText(paragraphs) {
  *
  * Auto-grab Paragraphs on a matching page
  *
- * Description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
+ * @description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
  * so that it can be parsed/formatted!
  *
  */
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
+    sendMessage(`Is init? ${isInit}`);
     if (!isInit) {
         convertPageText(paragraphs);
     }
@@ -82,11 +93,11 @@ function autoGrabParagraphs() {
  *
  * Initialise the content-script
  *
- * Description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
+ * @description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
  *
  */
 function initContentScript() {
-    sendMessage("Content script initialised!", ITypesCS.log);
+    sendMessage("Content script initialised!");
     autoGrabParagraphs();
 }
 // this will only happen on pages matching the content-scripts "matches" list of URLs for now

@@ -14,8 +14,9 @@ enum ITypesCS {
 
 /**
  *
- * Send a message to another part of the extension
+ * Helper function to communicate with background.js primarily
  *
+ * @description Send a message to another part of the extension
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
@@ -43,24 +44,30 @@ function parseBionic(paragraph: Element) {
 
             formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
-            // sendMessage(`Processed word ${index}...`);
             wordIndex++;
         });
 
         originalParagraphValues.push(paragraph.textContent as string);
         bionicParagraphValues.push(paragraphBionic as string);
 
-        sendMessage('Completed a paragraph!');
+        sendMessage('Completed a paragraph...');
         paragraph.innerHTML = paragraphBionic;
+        sendMessage('DOM updated successfully.');
     }
     paragraphIndex++;
 }
 
 function toggleBionic() {
     sendMessage('Toggling bionic...');
-
 }
 
+/**
+ *
+ * Convert Page Text
+ *
+ * @description accepts an array of HTML elements and iterates over them to run the parser
+ * @param paragraphs [NodeListOf<Element | HTMLParagraphElement] a list of elements on a matching page with the <p> tag!
+ */
 function convertPageText(paragraphs: NodeListOf<Element>) {
     paragraphs.forEach((paragraph: Element) => {
         sendMessage('Handling paragraph...');
@@ -73,7 +80,7 @@ function convertPageText(paragraphs: NodeListOf<Element>) {
  *
  * Auto-grab Paragraphs on a matching page
  *
- * Description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
+ * @description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
  * so that it can be parsed/formatted!
  *
  */
@@ -92,7 +99,7 @@ function autoGrabParagraphs() {
  *
  * Initialise the content-script
  *
- * Description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
+ * @description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
  *
  */
 function initContentScript() {

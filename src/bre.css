@@ -1,3 +1,11 @@
 b {
-    font-weight: bold !important;
+    font-weight: 600 !important;
+}
+
+body p {
+    font-family: Helvetica !important;
+    letter-spacing: 0.6px !important;
+    line-height: 1.55em !important;
+    font-weight: 400 !important;
+    font-size: 1.1em !important;
 }
