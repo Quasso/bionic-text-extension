@@ -12,10 +12,19 @@ If you're a developer and would like to contribute, you are (probably!) welcome!
 
 For now, if you contact me directly or file a [sensible] issue on the repo, you may well be invited to join the project as a "core" or "ephemeral" contributor.
 
-Open this project in your favourite editor, tap away, then run:
+## Get started
+
+Clone this repo:
 
 ```zsh
-npm install; npm run build
+git clone https://github.com/Quasso/bionic-reader-extension.git;
+cd bionic-reader-extension
+```
+
+Open this project in your favourite editor, then run:
+
+```zsh
+code .; npm install; npm run build
 ```
 
 From your terminal (at the root of this project!).

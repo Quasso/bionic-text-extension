@@ -10,11 +10,12 @@ let isActive = false;
 let isInit = false;
 let originalParagraphValues = [];
 let bionicParagraphValues = [];
-let wordIndex, paragraphIndex = 0;
+let wordIndex = 0, paragraphIndex = 0;
 var ITypesCS;
 (function (ITypesCS) {
     ITypesCS[ITypesCS["log"] = 0] = "log";
     ITypesCS[ITypesCS["action"] = 1] = "action";
+    ITypesCS[ITypesCS["notify"] = 2] = "notify";
 })(ITypesCS || (ITypesCS = {}));
 /**
  *
@@ -32,6 +33,15 @@ function sendMessage(message, type) {
         }
     });
 }
+/**
+ *
+ * Parse Bionic
+ *
+ * @description is able to receive any given HTML element (in reality it should always be a paragraph)
+ * and takes the "textContent", breaks it up by spaces (" ") and then
+ * @param paragraph [Element || HTMLParagraphElement] any given <p></p> element from a matching page
+ *
+ */
 function parseBionic(paragraph) {
     let paragraphBionic = '';
     if (paragraph['textContent'] != null) {
@@ -39,9 +49,9 @@ function parseBionic(paragraph) {
         words.forEach((word, index) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
-            const bioPart = word.slice(0, mid);
+            const bionicSlice = word.slice(0, mid);
             const remainder = word.slice(mid);
-            formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+            formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
@@ -68,6 +78,7 @@ function convertPageText(paragraphs) {
         sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
+    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     isInit = true;
 }
 /**

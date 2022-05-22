@@ -2,7 +2,7 @@ b {
     font-weight: 600 !important;
 }
 
-body p {
+.bre-override {
     font-family: Helvetica !important;
     letter-spacing: 0.6px !important;
     line-height: 1.55em !important;

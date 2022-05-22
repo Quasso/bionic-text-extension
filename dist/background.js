@@ -11,6 +11,7 @@ var ITypesBG;
 (function (ITypesBG) {
     ITypesBG[ITypesBG["log"] = 0] = "log";
     ITypesBG[ITypesBG["action"] = 1] = "action";
+    ITypesBG[ITypesBG["notify"] = 2] = "notify";
 })(ITypesBG || (ITypesBG = {}));
 /**
  *
@@ -24,7 +25,20 @@ function smartLog(message, prefix) {
 }
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
+    sendNotification('test');
 });
+function sendNotification(message) {
+    const ts = Date.now();
+    smartLog(`Generating notification with '${message}'...`);
+    let notifyOptions = {
+        type: "basic",
+        title: "Bionic Reader Extension",
+        message,
+        iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
+    };
+    smartLog(notifyOptions);
+    chrome.notifications.create("test", notifyOptions);
+}
 /**
  *
  * onClicked handler for contentScript
@@ -55,6 +69,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             break;
         case ITypesBG.log:
             smartLog(request.message, request.prefix);
+            break;
+        case ITypesBG.notify:
+            sendNotification(request.message);
             break;
     }
 });

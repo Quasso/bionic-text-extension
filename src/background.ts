@@ -3,7 +3,8 @@ const DEFAULT_LOG_PREFIX = "[BRE: background]";
 
 enum ITypesBG {
     log,
-    action
+    action,
+    notify
 }
 
 /**
@@ -19,7 +20,25 @@ function smartLog(message: string, prefix?: string) {
 
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
+    sendNotification('test');
 });
+
+function sendNotification(message: string) {
+    const ts = Date.now();
+
+    smartLog(`Generating notification with '${message}'...`);
+
+    let notifyOptions: any = {
+        type: "basic",
+        title: "Bionic Reader Extension",
+        message,
+        iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
+    };
+
+    smartLog(notifyOptions);
+
+    chrome.notifications.create("test", notifyOptions);
+}
 
 /**
  *
@@ -54,6 +73,9 @@ chrome.runtime.onMessage.addListener(
                 break;
             case ITypesBG.log:
                 smartLog(request.message, request.prefix);
+                break;
+            case ITypesBG.notify:
+                sendNotification(request.message);
                 break;
         }
     }

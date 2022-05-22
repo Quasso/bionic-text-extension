@@ -5,11 +5,12 @@ let isInit = false;
 let originalParagraphValues: Array<string> = [];
 let bionicParagraphValues: Array<string> = [];
 
-let wordIndex: number, paragraphIndex: number = 0;
+let wordIndex: number = 0, paragraphIndex: number = 0;
 
 enum ITypesCS {
     log,
-    action
+    action,
+    notify
 }
 
 /**
@@ -30,6 +31,18 @@ function sendMessage(message: string, type?: ITypesCS) {
     });
 }
 
+// TODO: make this more customisable with themes?
+
+/**
+ *
+ * Parse Bionic
+ *
+ * @description is able to receive any given HTML element (in reality it should always be a paragraph)
+ * and takes the "textContent", breaks it up by spaces (" ") and then parses each word and wraps
+ * the "Bionic" parts in <b> tags which have additional CSS to enforce the emphasis.
+ * @param paragraph [Element || HTMLParagraphElement] any given <p></p> element from a matching page
+ *
+ */
 function parseBionic(paragraph: Element) {
     let paragraphBionic: string = '';
 
@@ -39,10 +52,10 @@ function parseBionic(paragraph: Element) {
         words.forEach((word: string, index: number) => {
             let formattedWordHTML = '';
             const mid = Math.floor(word.length / 2);
-            const bioPart = word.slice(0, mid);
+            const bionicSlice = word.slice(0, mid);
             const remainder = word.slice(mid);
 
-            formattedWordHTML = `<b>${bioPart}</b>${remainder}`;
+            formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
@@ -73,6 +86,7 @@ function convertPageText(paragraphs: NodeListOf<Element>) {
         sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
+    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     isInit = true;
 }
 
