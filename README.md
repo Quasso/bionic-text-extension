@@ -10,7 +10,7 @@ This extension converts text on-the-fly into Bionic Text. The goal of this exten
 
 If you're a developer and would like to contribute, you are (probably!) welcome!
 
-For now, if you contact me directly or file a [sensible] issue on the repo, you may be invited to join the project as a "core" or "ephemeral" contributor.
+For now, if you contact me directly or file a [sensible] issue on the repo, you may well be invited to join the project as a "core" or "ephemeral" contributor.
 
 Open this project in your favourite editor, tap away, then run:
 
