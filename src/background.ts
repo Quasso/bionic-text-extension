@@ -1,13 +1,8 @@
-// import { DELIMITERS } from './content-script';
 const DEBUG = true;
-const ADV_DEBUG = false;
+const VERBOSE = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
 
-enum ITypesBG {
-    log,
-    action,
-    notify
-}
+import { MessageTypes } from "./message-types";
 
 const storageSet = (key: string, value: string) => {
     const STORAGE_OBJ = { key: value };
@@ -16,8 +11,6 @@ const storageSet = (key: string, value: string) => {
     });
 }
 
-
-
 /**
  *
  * Smart Log
@@ -25,9 +18,10 @@ const storageSet = (key: string, value: string) => {
  * @description helps with logging out stuff to the console of the background worker in Chrome
  * @param message [string] the message to log
  * @param prefix [string] optional: a prefix to use instead of the default
+ * @param verbose [boolean] optional: if true, require VERBOSE to be set
  */
-const smartLog = (message: string, prefix?: string, advOnly: boolean = false) => {
-    if ((DEBUG && !advOnly) || (DEBUG && advOnly && ADV_DEBUG)) {
+const smartLog = (message: string, prefix?: string, verbose: boolean = false) => {
+    if ((DEBUG && !verbose) || (DEBUG && verbose && VERBOSE)) {
         console.log((prefix || DEFAULT_LOG_PREFIX) + ' ' + message);
     }
 }
@@ -91,13 +85,13 @@ chrome.runtime.onMessage.addListener(
         }
 
         switch (request.type) {
-            case ITypesBG.action:
+            case MessageTypes.action:
                 // trigger a function or something
                 break;
-            case ITypesBG.log:
+            case MessageTypes.log:
                 smartLog(request.message, request.prefix);
                 break;
-            case ITypesBG.notify:
+            case MessageTypes.notify:
                 sendNotification(request.message);
                 break;
         }
