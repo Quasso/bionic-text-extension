@@ -33,12 +33,32 @@ function sendMessage(message, type) {
         }
     });
 }
+function containsHyphen(word) {
+    const containsDoubleHyphen = word.indexOf('--');
+    if (containsDoubleHyphen > 0) {
+        sendMessage(`This word contains a double hyphen ${word}!`);
+    }
+    const containsHyphen = word.indexOf('-');
+    if (containsHyphen > 0) {
+        sendMessage(`This word contains one hyphen ${word}!`);
+    }
+}
+function parseWord(word) {
+    containsHyphen(word);
+    const mid = Math.floor(word.length / 2);
+    const bionicSlice = word.slice(0, mid);
+    const remainder = word.slice(mid);
+    const formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
+    return formattedWordHTML;
+}
+// TODO: make this more customisable with themes?
 /**
  *
  * Parse Bionic
  *
  * @description is able to receive any given HTML element (in reality it should always be a paragraph)
- * and takes the "textContent", breaks it up by spaces (" ") and then
+ * and takes the "textContent", breaks it up by spaces (" ") and then parses each word and wraps
+ * the "Bionic" parts in <b> tags which have additional CSS to enforce the emphasis.
  * @param paragraph [Element || HTMLParagraphElement] any given <p></p> element from a matching page
  *
  */
@@ -48,10 +68,6 @@ function parseBionic(paragraph) {
         const words = paragraph.textContent.split(" ");
         words.forEach((word, index) => {
             let formattedWordHTML = '';
-            const mid = Math.floor(word.length / 2);
-            const bionicSlice = word.slice(0, mid);
-            const remainder = word.slice(mid);
-            formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });

@@ -31,8 +31,29 @@ function sendMessage(message: string, type?: ITypesCS) {
     });
 }
 
-// TODO: make this more customisable with themes?
+function containsHyphen(word: string) {
+    const containsDoubleHyphen = word.indexOf('--');
+    if (containsDoubleHyphen > 0) {
+        sendMessage(`This word contains a double hyphen ${word}!`);
+    }
+    const containsHyphen = word.indexOf('-');
+    if (containsHyphen > 0) {
+        sendMessage(`This word contains one hyphen ${word}!`);
+    }
+}
 
+
+function parseWord(word: string): string {
+    containsHyphen(word);
+    const mid = Math.floor(word.length / 2);
+    const bionicSlice = word.slice(0, mid);
+    const remainder = word.slice(mid);
+
+    const formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
+    return formattedWordHTML;
+}
+
+// TODO: make this more customisable with themes?
 /**
  *
  * Parse Bionic
@@ -51,11 +72,7 @@ function parseBionic(paragraph: Element) {
 
         words.forEach((word: string, index: number) => {
             let formattedWordHTML = '';
-            const mid = Math.floor(word.length / 2);
-            const bionicSlice = word.slice(0, mid);
-            const remainder = word.slice(mid);
 
-            formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
