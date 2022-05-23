@@ -26,7 +26,9 @@ enum ITypesCS {
     log,
     action,
     notify,
-    store
+    store,
+    store_create,
+    store_read
 };
 
 /**
@@ -157,7 +159,7 @@ const parseBionic = (paragraph: Element) => {
         bionicParagraphValues.push(paragraphBionic as string);
 
         paragraph.innerHTML = paragraphBionic;
-        sendMessage(`Completed parsing paragraph ${wordIndex} DOM updated successfully.`);
+        sendMessage(`Completed parsing paragraph ${paragraphIndex} DOM updated successfully.`);
     }
     paragraphIndex++;
 }
@@ -182,10 +184,10 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
     });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     STATUS.init = true;
-    sendMessage('Parsed all content on this page', ITypesCS.store,
+    sendMessage('Parsed all content on this page', ITypesCS.store_create,
         {
-            key: 'GET_SENDER_TAB',
-            value: true
+            isInit: true,
+            key: 'GET_SENDER_TAB'
         });
 }
 
@@ -200,6 +202,10 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
+    sendMessage(`Check if already loaded on this page`, ITypesCS.store_read, {
+        action: 'checkPageInit',
+        expectResponse: true
+    });
     sendMessage(`Is init? ${STATUS.init}`);
     if (!STATUS.init) {
         convertPageText(paragraphs);

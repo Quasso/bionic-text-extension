@@ -1,12 +1,15 @@
 const DEBUG = true;
 const VERBOSE = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
+const STORAGE_PREFIX = 'breStatus-';
 
 enum ITypesBG {
     log,
     action,
     notify,
-    store
+    store,
+    store_create,
+    store_read
 }
 
 const storageSet = (key: string, value: string) => {
@@ -15,6 +18,13 @@ const storageSet = (key: string, value: string) => {
         smartLog(`Setting key '${key}' and value '${value}'`);
     });
 }
+
+const storageGet = (key: string) => {
+    chrome.storage.local.get([`${key}`], (value) => {
+        smartLog(`Got key '${key}' with value '${value}'`);
+    });
+}
+
 
 /**
  *
@@ -99,15 +109,25 @@ chrome.runtime.onMessage.addListener(
             case ITypesBG.notify:
                 sendNotification(request.message);
                 break;
-            case ITypesBG.store:
+            case ITypesBG.store_create:
                 if (request.details.isInit) {
                     if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
-                        storageSet(sender.tab.url as string, request.details.value);
+                        storageSet(STORAGE_PREFIX + sender.tab.url as string, request.details.value);
                     } else {
-                        storageSet(request.details.key, request.details.value);
+                        storageSet(request.details.key, request.details.isInit);
                     }
                     smartLog('Initialised. Storage set.');
                 }
+                break;
+            case ITypesBG.store_read:
+                smartLog('Should try to read from store...');
+                if (sender.tab && sender.tab.url && request.details.action === 'checkPageInit') {
+                    smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
+                    storageGet(STORAGE_PREFIX + sender.tab.url as string);
+                } else {
+                    storageGet(request.details.key);
+                }
+                smartLog('Initialised. Storage set.');
                 break;
         }
     }
