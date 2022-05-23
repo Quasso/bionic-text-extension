@@ -1,3 +1,4 @@
+// import { DELIMITERS } from './content-script';
 const DEBUG = true;
 const ADV_DEBUG = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
@@ -52,6 +53,7 @@ function sendNotification(message: string) {
  */
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
+    // smartLog(`Test import ${DELIMITERS.DBL_HYPHEN_A}`);
 });
 
 /**

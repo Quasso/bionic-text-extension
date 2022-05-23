@@ -1,16 +1,59 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
 var __webpack_exports__ = {};
 /*!*******************************!*\
   !*** ./src/content-script.ts ***!
   \*******************************/
-
-let CS_LOG_PREFIX = "[BRE: contentScript via background]";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "DELIMITERS": () => (/* binding */ DELIMITERS)
+/* harmony export */ });
+let CS_LOG_PREFIX = "[BRE: c-s via background]";
 let isActive = false;
 let isInit = false;
-const HYPHEN = "-";
-const DBL_HYPHEN_A = "--";
-const DBL_HYPHEN_B = "—";
+let STATUS = {
+    active: false,
+    init: false
+};
+const DELIMITERS = {
+    HYPHEN: "-",
+    DBL_HYPHEN_A: "--",
+    DBL_HYPHEN_B: "—",
+    SPACE: " "
+};
 let originalParagraphValues = [];
 let bionicParagraphValues = [];
 let wordIndex = 0, paragraphIndex = 0;
@@ -20,6 +63,7 @@ var ITypesCS;
     ITypesCS[ITypesCS["action"] = 1] = "action";
     ITypesCS[ITypesCS["notify"] = 2] = "notify";
 })(ITypesCS || (ITypesCS = {}));
+;
 /**
  *
  * Send Message
@@ -45,23 +89,23 @@ function sendMessage(message, type) {
  * @returns [boolean | string] false if not present, string with correctly formatted text if it does
  */
 function advancedParseString(word) {
-    const containsDoubleHyphenA = word.indexOf(DBL_HYPHEN_A);
-    const containsDoubleHyphenB = word.indexOf(DBL_HYPHEN_B);
-    const advancedParseString = word.indexOf(HYPHEN);
+    const containsDoubleHyphenA = word.indexOf(DELIMITERS.DBL_HYPHEN_A);
+    const containsDoubleHyphenB = word.indexOf(DELIMITERS.DBL_HYPHEN_B);
+    const advancedParseString = word.indexOf(DELIMITERS.HYPHEN);
     if (containsDoubleHyphenA > 0) {
         sendMessage(`This word contains a standard double hyphen ${word}!`);
-        let words = word.split(DBL_HYPHEN_A);
-        return bionicWord(words[0]) + DBL_HYPHEN_A + bionicWord(words[1]);
+        let words = word.split(DELIMITERS.DBL_HYPHEN_A);
+        return bionicWord(words[0]) + DELIMITERS.DBL_HYPHEN_A + bionicWord(words[1]);
     }
     else if (containsDoubleHyphenB > 0) {
         sendMessage(`This word contains a conjoined double hyphen ${word}!`);
-        let words = word.split(DBL_HYPHEN_B);
-        return bionicWord(words[0]) + DBL_HYPHEN_B + bionicWord(words[1]);
+        let words = word.split(DELIMITERS.DBL_HYPHEN_B);
+        return bionicWord(words[0]) + DELIMITERS.DBL_HYPHEN_B + bionicWord(words[1]);
     }
     else if (advancedParseString > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
-        let words = word.split(HYPHEN);
-        return bionicWord(words[0]) + HYPHEN + bionicWord(words[1]);
+        let words = word.split(DELIMITERS.HYPHEN);
+        return bionicWord(words[0]) + DELIMITERS.HYPHEN + bionicWord(words[1]);
     }
     else if (word.length == 1) {
         // one-letter words are always bold
@@ -91,6 +135,7 @@ function bionicWord(word) {
  *
  * Parse String
  *
+ * @description some basic logic to parse strings according to their contents
  * @param str [string] a string of continuous characters derived by splitting " " on page text
  * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing functionality for edge cases)
  */
@@ -126,14 +171,13 @@ function parseBionic(paragraph) {
         });
         originalParagraphValues.push(paragraph.textContent);
         bionicParagraphValues.push(paragraphBionic);
-        // sendMessage('Completed a paragraph...');
         paragraph.innerHTML = paragraphBionic;
-        sendMessage('DOM updated successfully.');
+        sendMessage(`Completed parsing paragraph ${wordIndex} DOM updated successfully.`);
     }
     paragraphIndex++;
 }
 function toggleBionic() {
-    sendMessage('Toggling bionic...');
+    sendMessage('Toggling bionic...', ITypesCS.notify);
 }
 /**
  *
@@ -143,12 +187,13 @@ function toggleBionic() {
  * @param paragraphs [NodeListOf<Element | HTMLParagraphElement] a list of elements on a matching page with the <p> tag!
  */
 function convertPageText(paragraphs) {
+    wordIndex = 0, paragraphIndex = 0;
     paragraphs.forEach((paragraph) => {
         sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
-    isInit = true;
+    STATUS.init = true;
 }
 /**
  *
@@ -161,8 +206,8 @@ function convertPageText(paragraphs) {
 function autoGrabParagraphs() {
     const paragraphs = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
-    sendMessage(`Is init? ${isInit}`);
-    if (!isInit) {
+    sendMessage(`Is init? ${STATUS.init}`);
+    if (!STATUS.init) {
         convertPageText(paragraphs);
     }
     else {
