@@ -20,7 +20,8 @@ let wordIndex: number = 0, paragraphIndex: number = 0;
 enum ITypesCS {
     log,
     action,
-    notify
+    notify,
+    store
 };
 
 /**
@@ -31,10 +32,10 @@ enum ITypesCS {
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
-const sendMessage = (message: string, type?: ITypesCS) => {
+const sendMessage = (message: string, type?: ITypesCS, details?: any) => {
     !type ? type = ITypesCS.log : console.log('Nothing to see here');
 
-    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type }, (response) => {
+    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
         if (response) {
             console.log(response);
         }
@@ -157,7 +158,7 @@ const parseBionic = (paragraph: Element) => {
 }
 
 const toggleBionic = () => {
-    sendMessage('Toggling bionic...', ITypesCS.notify);
+    sendMessage(`Toggling bionic state from '${STATUS.active}'...`, ITypesCS.notify);
 }
 
 /**
@@ -176,6 +177,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
     });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     STATUS.init = true;
+    sendMessage('Parsed all content on this page', ITypesCS.store)
 }
 
 /**

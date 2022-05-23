@@ -2,7 +2,12 @@ const DEBUG = true;
 const VERBOSE = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
 
-import { MessageTypes } from "./message-types";
+enum ITypesBG {
+    log,
+    action,
+    notify,
+    store
+}
 
 const storageSet = (key: string, value: string) => {
     const STORAGE_OBJ = { key: value };
@@ -85,14 +90,20 @@ chrome.runtime.onMessage.addListener(
         }
 
         switch (request.type) {
-            case MessageTypes.action:
+            case ITypesBG.action:
                 // trigger a function or something
                 break;
-            case MessageTypes.log:
+            case ITypesBG.log:
                 smartLog(request.message, request.prefix);
                 break;
-            case MessageTypes.notify:
+            case ITypesBG.notify:
                 sendNotification(request.message);
+                break;
+            case ITypesBG.store:
+                if (request.details.isInit) {
+                    storageSet(request.details.key, request.details.value);
+                    smartLog('Initialised. Storage set.');
+                }
                 break;
         }
     }
