@@ -45,7 +45,6 @@ function sendNotification(message: string) {
     chrome.notifications.create(notifyOptions);
 }
 
-
 /**
  *
  * Detect once the extension has loaded and log for dev purposes
