@@ -42,8 +42,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "DELIMITERS": () => (/* binding */ DELIMITERS)
 /* harmony export */ });
 let CS_LOG_PREFIX = "[BRE: c-s via background]";
-let isActive = false;
-let isInit = false;
 let STATUS = {
     active: false,
     init: false
@@ -68,18 +66,18 @@ var ITypesCS;
  *
  * Send Message
  *
- * @description helper function to communicate with background.js primarily. Send a message to another part of the extension
+ * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extensio=>n
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
-function sendMessage(message, type) {
+const sendMessage = (message, type) => {
     !type ? type = ITypesCS.log : console.log('Nothing to see here');
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type }, (response) => {
         if (response) {
             console.log(response);
         }
     });
-}
+};
 /**
  *
  * Advanced Parse String
@@ -88,10 +86,12 @@ function sendMessage(message, type) {
  * @param word [string] a string of continuous characters derived by splitting " " on page text
  * @returns [boolean | string] false if not present, string with correctly formatted text if it does
  */
-function advancedParseString(word) {
+const advancedParseString = (word) => {
+    // Two different characters tend to cover the double hyphenation online
     const containsDoubleHyphenA = word.indexOf(DELIMITERS.DBL_HYPHEN_A);
     const containsDoubleHyphenB = word.indexOf(DELIMITERS.DBL_HYPHEN_B);
-    const advancedParseString = word.indexOf(DELIMITERS.HYPHEN);
+    // Just plain ol' hyphens baby
+    const containsHyphen = word.indexOf(DELIMITERS.HYPHEN);
     if (containsDoubleHyphenA > 0) {
         sendMessage(`This word contains a standard double hyphen ${word}!`);
         let words = word.split(DELIMITERS.DBL_HYPHEN_A);
@@ -102,19 +102,18 @@ function advancedParseString(word) {
         let words = word.split(DELIMITERS.DBL_HYPHEN_B);
         return bionicWord(words[0]) + DELIMITERS.DBL_HYPHEN_B + bionicWord(words[1]);
     }
-    else if (advancedParseString > 0) {
+    else if (containsHyphen > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
         let words = word.split(DELIMITERS.HYPHEN);
         return bionicWord(words[0]) + DELIMITERS.HYPHEN + bionicWord(words[1]);
     }
-    else if (word.length == 1) {
-        // one-letter words are always bold
-        return `<b>${word}</b>`;
-    }
     else {
         return false;
     }
-}
+};
+const makeBold = (word) => {
+    return `<b>${word}</b>`;
+};
 /**
  *
  * Bionic Word
@@ -124,22 +123,33 @@ function advancedParseString(word) {
  * @param word [string] a string of continuous characters derived by splitting " " on page text
  * @returns [string] the processed text as HTML
  */
-function bionicWord(word) {
+const bionicWord = (word) => {
     const mid = Math.floor(word.length / 2);
     const bionicSlice = word.slice(0, mid);
     const remainder = word.slice(mid);
-    const formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
-    return formattedWordHTML;
-}
+    switch (word.length) {
+        case 0:
+            // empty string...
+            return word;
+        case 1:
+            // one-letter words are always bold, and the normal formula
+            // does not easily play with that so this is a simple
+            // solution
+            return makeBold(word);
+        default:
+            const formattedWordHTML = `${makeBold(bionicSlice)}${remainder}`;
+            return formattedWordHTML;
+    }
+};
 /**
  *
  * Parse String
  *
  * @description some basic logic to parse strings according to their contents
  * @param str [string] a string of continuous characters derived by splitting " " on page text
- * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing functionality for edge cases)
+ * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing const lity =  for edge cases=>)
  */
-function parseString(str) {
+const parseString = (str) => {
     // sendMessage(`Parsing word ${word}`);
     const advancedParse = advancedParseString(str);
     if (!advancedParse) {
@@ -148,7 +158,7 @@ function parseString(str) {
     else {
         return advancedParse;
     }
-}
+};
 /**
  *
  * Parse Bionic
@@ -159,7 +169,7 @@ function parseString(str) {
  * @param paragraph [Element || HTMLParagraphElement] any given <p></p> element from a matching page
  *
  */
-function parseBionic(paragraph) {
+const parseBionic = (paragraph) => {
     let paragraphBionic = '';
     if (paragraph['textContent'] != null) {
         const words = paragraph.textContent.split(" ");
@@ -175,10 +185,10 @@ function parseBionic(paragraph) {
         sendMessage(`Completed parsing paragraph ${wordIndex} DOM updated successfully.`);
     }
     paragraphIndex++;
-}
-function toggleBionic() {
+};
+const toggleBionic = () => {
     sendMessage('Toggling bionic...', ITypesCS.notify);
-}
+};
 /**
  *
  * Convert Page Text
@@ -186,7 +196,7 @@ function toggleBionic() {
  * @description accepts an array of HTML elements and iterates over them to run the parser
  * @param paragraphs [NodeListOf<Element | HTMLParagraphElement] a list of elements on a matching page with the <p> tag!
  */
-function convertPageText(paragraphs) {
+const convertPageText = (paragraphs) => {
     wordIndex = 0, paragraphIndex = 0;
     paragraphs.forEach((paragraph) => {
         sendMessage('Handling paragraph...');
@@ -194,16 +204,16 @@ function convertPageText(paragraphs) {
     });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     STATUS.init = true;
-}
+};
 /**
  *
  * Auto-grab Paragraphs on a matching page
  *
- * @description: this is a rudimentary function which uses very little intelligence to grab all paragraph text
+ * @description: this is a rudimentary const which =  uses very little intelligence to grab all paragraph tex=>t
  * so that it can be parsed/formatted!
  *
  */
-function autoGrabParagraphs() {
+const autoGrabParagraphs = () => {
     const paragraphs = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
     sendMessage(`Is init? ${STATUS.init}`);
@@ -213,7 +223,7 @@ function autoGrabParagraphs() {
     else {
         toggleBionic();
     }
-}
+};
 /**
  *
  * Initialise the content-script
@@ -221,10 +231,10 @@ function autoGrabParagraphs() {
  * @description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
  *
  */
-function initContentScript() {
+const initContentScript = () => {
     sendMessage("Content script initialised!");
     autoGrabParagraphs();
-}
+};
 // this will only happen on pages matching the content-scripts "matches" list of URLs for now
 initContentScript();
 

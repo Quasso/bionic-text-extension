@@ -1,26 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-/******/ 	// The require scope
-/******/ 	var __webpack_require__ = {};
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/************************************************************************/
 var __webpack_exports__ = {};
 /*!***************************!*\
   !*** ./src/background.ts ***!
   \***************************/
-__webpack_require__.r(__webpack_exports__);
+
+// import { DELIMITERS } from './content-script';
 const DEBUG = true;
 const ADV_DEBUG = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
@@ -38,18 +23,18 @@ var ITypesBG;
  * @param message [string] the message to log
  * @param prefix [string] optional: a prefix to use instead of the default
  */
-function smartLog(message, prefix, advOnly = false) {
+const smartLog = (message, prefix, advOnly = false) => {
     if ((DEBUG && !advOnly) || (DEBUG && advOnly && ADV_DEBUG)) {
         console.log((prefix || DEFAULT_LOG_PREFIX) + ' ' + message);
     }
-}
+};
 /**
  *
  * Send Notification
  *
  * @param message [string] the message to display in the notification
  */
-function sendNotification(message) {
+const sendNotification = (message) => {
     const ts = Date.now();
     smartLog(`Generating notification with '${message}' at ${ts}...`);
     let notifyOptions = {
@@ -60,7 +45,7 @@ function sendNotification(message) {
     };
     smartLog(notifyOptions);
     chrome.notifications.create(notifyOptions);
-}
+};
 /**
  *
  * Detect once the extension has loaded and log for dev purposes
@@ -90,7 +75,7 @@ chrome.action.onClicked.addListener((tab) => {
  *
  * Description: for bi-directional communication from the contentScript once running
  */
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (sender.tab) {
         smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix, true);
     }
@@ -106,7 +91,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             break;
     }
 });
-
 
 /******/ })()
 ;
