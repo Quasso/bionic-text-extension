@@ -3,7 +3,8 @@ let isActive = false;
 let isInit = false;
 
 const HYPHEN = "-";
-const DBL_HYPHEN = "--";
+const DBL_HYPHEN_A = "--";
+const DBL_HYPHEN_B = "—";
 
 let originalParagraphValues: Array<string> = [];
 let bionicParagraphValues: Array<string> = [];
@@ -43,17 +44,26 @@ function sendMessage(message: string, type?: ITypesCS) {
  * @returns [boolean | string] false if not present, string with correctly formatted text if it does
  */
 function advancedParseString(word: string): boolean | string {
-    const containsDoubleHyphen = word.indexOf(DBL_HYPHEN);
+    const containsDoubleHyphenA = word.indexOf(DBL_HYPHEN_A);
+    const containsDoubleHyphenB = word.indexOf(DBL_HYPHEN_B);
+
     const advancedParseString = word.indexOf(HYPHEN);
 
-    if (containsDoubleHyphen > 0) {
-        sendMessage(`This word contains a double hyphen ${word}!`);
-        let words = word.split(DBL_HYPHEN);
-        return bionicWord(words[0]) + DBL_HYPHEN + bionicWord(words[1]);
+    if (containsDoubleHyphenA > 0) {
+        sendMessage(`This word contains a standard double hyphen ${word}!`);
+        let words = word.split(DBL_HYPHEN_A);
+        return bionicWord(words[0]) + DBL_HYPHEN_A + bionicWord(words[1]);
+    } else if (containsDoubleHyphenB > 0) {
+        sendMessage(`This word contains a conjoined double hyphen ${word}!`);
+        let words = word.split(DBL_HYPHEN_B);
+        return bionicWord(words[0]) + DBL_HYPHEN_B + bionicWord(words[1]);
     } else if (advancedParseString > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
         let words = word.split(HYPHEN);
         return bionicWord(words[0]) + HYPHEN + bionicWord(words[1]);
+    } else if (word.length == 1) {
+        // one-letter words are always bold
+        return `<b>${word}</b>`;
     } else {
         return false;
     }

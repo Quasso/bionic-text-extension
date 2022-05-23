@@ -16,6 +16,9 @@ var ITypesBG;
 })(ITypesBG || (ITypesBG = {}));
 /**
  *
+ * Smart Log
+ *
+ * @description helps with logging out stuff to the console of the background worker in Chrome
  * @param message [string] the message to log
  * @param prefix [string] optional: a prefix to use instead of the default
  */
@@ -24,10 +27,6 @@ function smartLog(message, prefix, advOnly = false) {
         console.log((prefix || DEFAULT_LOG_PREFIX) + ' ' + message);
     }
 }
-chrome.runtime.onInstalled.addListener(() => {
-    smartLog('Initialised successfully.');
-    sendNotification('test');
-});
 /**
  *
  * Send Notification
@@ -46,6 +45,14 @@ function sendNotification(message) {
     smartLog(notifyOptions);
     chrome.notifications.create(notifyOptions);
 }
+/**
+ *
+ * Detect once the extension has loaded and log for dev purposes
+ *
+ */
+chrome.runtime.onInstalled.addListener(() => {
+    smartLog('Initialised successfully.');
+});
 /**
  *
  * onClicked handler for contentScript

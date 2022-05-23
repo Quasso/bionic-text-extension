@@ -9,7 +9,8 @@ let CS_LOG_PREFIX = "[BRE: contentScript via background]";
 let isActive = false;
 let isInit = false;
 const HYPHEN = "-";
-const DBL_HYPHEN = "--";
+const DBL_HYPHEN_A = "--";
+const DBL_HYPHEN_B = "—";
 let originalParagraphValues = [];
 let bionicParagraphValues = [];
 let wordIndex = 0, paragraphIndex = 0;
@@ -37,24 +38,34 @@ function sendMessage(message, type) {
 }
 /**
  *
- * Contains Hyphen
+ * Advanced Parse String
  *
  * @description some "words" are actually two words conjoined by hyphens, this auto-detects that and handles parsing correctly
  * @param word [string] a string of continuous characters derived by splitting " " on page text
  * @returns [boolean | string] false if not present, string with correctly formatted text if it does
  */
-function containsHyphen(word) {
-    const containsDoubleHyphen = word.indexOf(DBL_HYPHEN);
-    const containsHyphen = word.indexOf(HYPHEN);
-    if (containsDoubleHyphen > 0) {
-        sendMessage(`This word contains a double hyphen ${word}!`);
-        let words = word.split(DBL_HYPHEN);
-        return bionicWord(words[0]) + DBL_HYPHEN + bionicWord(words[1]);
+function advancedParseString(word) {
+    const containsDoubleHyphenA = word.indexOf(DBL_HYPHEN_A);
+    const containsDoubleHyphenB = word.indexOf(DBL_HYPHEN_B);
+    const advancedParseString = word.indexOf(HYPHEN);
+    if (containsDoubleHyphenA > 0) {
+        sendMessage(`This word contains a standard double hyphen ${word}!`);
+        let words = word.split(DBL_HYPHEN_A);
+        return bionicWord(words[0]) + DBL_HYPHEN_A + bionicWord(words[1]);
     }
-    else if (containsHyphen > 0) {
+    else if (containsDoubleHyphenB > 0) {
+        sendMessage(`This word contains a conjoined double hyphen ${word}!`);
+        let words = word.split(DBL_HYPHEN_B);
+        return bionicWord(words[0]) + DBL_HYPHEN_B + bionicWord(words[1]);
+    }
+    else if (advancedParseString > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
         let words = word.split(HYPHEN);
         return bionicWord(words[0]) + HYPHEN + bionicWord(words[1]);
+    }
+    else if (word.length == 1) {
+        // one-letter words are always bold
+        return `<b>${word}</b>`;
     }
     else {
         return false;
@@ -78,16 +89,16 @@ function bionicWord(word) {
 }
 /**
  *
- * Parse Word
+ * Parse String
  *
- * @param word [string] a string of continuous characters derived by splitting " " on page text
+ * @param str [string] a string of continuous characters derived by splitting " " on page text
  * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing functionality for edge cases)
  */
-function parseWord(word) {
+function parseString(str) {
     // sendMessage(`Parsing word ${word}`);
-    const advancedParse = containsHyphen(word);
+    const advancedParse = advancedParseString(str);
     if (!advancedParse) {
-        return bionicWord(word);
+        return bionicWord(str);
     }
     else {
         return advancedParse;
@@ -109,7 +120,7 @@ function parseBionic(paragraph) {
         const words = paragraph.textContent.split(" ");
         words.forEach((word) => {
             let formattedWordHTML = '';
-            formattedWordHTML = parseWord(word);
+            formattedWordHTML = parseString(word);
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
