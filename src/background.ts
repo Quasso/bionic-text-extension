@@ -22,11 +22,6 @@ function smartLog(message: string, prefix?: string, advOnly: boolean = false) {
     }
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-    smartLog('Initialised successfully.');
-    sendNotification('test');
-});
-
 /**
  *
  * Send Notification
@@ -49,6 +44,16 @@ function sendNotification(message: string) {
 
     chrome.notifications.create(notifyOptions);
 }
+
+
+/**
+ *
+ * Detect once the extension has loaded and log for dev purposes
+ *
+ */
+chrome.runtime.onInstalled.addListener(() => {
+    smartLog('Initialised successfully.');
+});
 
 /**
  *
