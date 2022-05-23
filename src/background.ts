@@ -34,16 +34,14 @@ const sendNotification = (message: string) => {
 
     smartLog(`Generating notification with '${message}' at ${ts}...`);
 
-    let notifyOptions: any = {
+    const NOTIFICATION_OPTIONS: any = {
         type: "basic",
         title: "Bionic Reader Extension",
         message,
         iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
     };
 
-    smartLog(notifyOptions);
-
-    chrome.notifications.create(notifyOptions);
+    chrome.notifications.create(NOTIFICATION_OPTIONS);
 }
 
 /**
