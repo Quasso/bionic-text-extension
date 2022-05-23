@@ -36,21 +36,21 @@ function sendMessage(message: string, type?: ITypesCS) {
 
 /**
  *
- * Contains Hyphen
+ * Advanced Parse String
  *
  * @description some "words" are actually two words conjoined by hyphens, this auto-detects that and handles parsing correctly
  * @param word [string] a string of continuous characters derived by splitting " " on page text
  * @returns [boolean | string] false if not present, string with correctly formatted text if it does
  */
-function containsHyphen(word: string): boolean | string {
+function advancedParseString(word: string): boolean | string {
     const containsDoubleHyphen = word.indexOf(DBL_HYPHEN);
-    const containsHyphen = word.indexOf(HYPHEN);
+    const advancedParseString = word.indexOf(HYPHEN);
 
     if (containsDoubleHyphen > 0) {
         sendMessage(`This word contains a double hyphen ${word}!`);
         let words = word.split(DBL_HYPHEN);
         return bionicWord(words[0]) + DBL_HYPHEN + bionicWord(words[1]);
-    } else if (containsHyphen > 0) {
+    } else if (advancedParseString > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
         let words = word.split(HYPHEN);
         return bionicWord(words[0]) + HYPHEN + bionicWord(words[1]);
@@ -86,7 +86,7 @@ function bionicWord(word: string): string {
  */
 function parseString(str: string): string {
     // sendMessage(`Parsing word ${word}`);
-    const advancedParse = containsHyphen(str);
+    const advancedParse = advancedParseString(str);
     if (!advancedParse) {
         return bionicWord(str);
     } else {
