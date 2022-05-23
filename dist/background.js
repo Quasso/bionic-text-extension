@@ -6,6 +6,7 @@ var __webpack_exports__ = {};
   \***************************/
 
 const DEBUG = true;
+const ADV_DEBUG = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
 var ITypesBG;
 (function (ITypesBG) {
@@ -18,8 +19,8 @@ var ITypesBG;
  * @param message [string] the message to log
  * @param prefix [string] optional: a prefix to use instead of the default
  */
-function smartLog(message, prefix) {
-    if (DEBUG) {
+function smartLog(message, prefix, advOnly = false) {
+    if ((DEBUG && !advOnly) || (DEBUG && advOnly && ADV_DEBUG)) {
         console.log((prefix || DEFAULT_LOG_PREFIX) + ' ' + message);
     }
 }
@@ -27,9 +28,15 @@ chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
     sendNotification('test');
 });
+/**
+ *
+ * Send Notification
+ *
+ * @param message [string] the message to display in the notification
+ */
 function sendNotification(message) {
     const ts = Date.now();
-    smartLog(`Generating notification with '${message}'...`);
+    smartLog(`Generating notification with '${message}' at ${ts}...`);
     let notifyOptions = {
         type: "basic",
         title: "Bionic Reader Extension",
@@ -37,7 +44,7 @@ function sendNotification(message) {
         iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
     };
     smartLog(notifyOptions);
-    chrome.notifications.create("test", notifyOptions);
+    chrome.notifications.create(notifyOptions);
 }
 /**
  *
@@ -61,11 +68,11 @@ chrome.action.onClicked.addListener((tab) => {
  */
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (sender.tab) {
-        smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix);
+        smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix, true);
     }
     switch (request.type) {
         case ITypesBG.action:
-            smartLog('do action!');
+            // trigger a function or something
             break;
         case ITypesBG.log:
             smartLog(request.message, request.prefix);

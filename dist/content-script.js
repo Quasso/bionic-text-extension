@@ -8,6 +8,8 @@ var __webpack_exports__ = {};
 let CS_LOG_PREFIX = "[BRE: contentScript via background]";
 let isActive = false;
 let isInit = false;
+const HYPHEN = "-";
+const DBL_HYPHEN = "--";
 let originalParagraphValues = [];
 let bionicParagraphValues = [];
 let wordIndex = 0, paragraphIndex = 0;
@@ -19,9 +21,9 @@ var ITypesCS;
 })(ITypesCS || (ITypesCS = {}));
 /**
  *
- * Helper function to communicate with background.js primarily
+ * Send Message
  *
- * @description Send a message to another part of the extension
+ * @description helper function to communicate with background.js primarily. Send a message to another part of the extension
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
@@ -33,25 +35,64 @@ function sendMessage(message, type) {
         }
     });
 }
+/**
+ *
+ * Contains Hyphen
+ *
+ * @description some "words" are actually two words conjoined by hyphens, this auto-detects that and handles parsing correctly
+ * @param word [string] a string of continuous characters derived by splitting " " on page text
+ * @returns [boolean | string] false if not present, string with correctly formatted text if it does
+ */
 function containsHyphen(word) {
-    const containsDoubleHyphen = word.indexOf('--');
+    const containsDoubleHyphen = word.indexOf(DBL_HYPHEN);
+    const containsHyphen = word.indexOf(HYPHEN);
     if (containsDoubleHyphen > 0) {
         sendMessage(`This word contains a double hyphen ${word}!`);
+        let words = word.split(DBL_HYPHEN);
+        return bionicWord(words[0]) + DBL_HYPHEN + bionicWord(words[1]);
     }
-    const containsHyphen = word.indexOf('-');
-    if (containsHyphen > 0) {
+    else if (containsHyphen > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
+        let words = word.split(HYPHEN);
+        return bionicWord(words[0]) + HYPHEN + bionicWord(words[1]);
+    }
+    else {
+        return false;
     }
 }
-function parseWord(word) {
-    containsHyphen(word);
+/**
+ *
+ * Bionic Word
+ *
+ * @description create the processed "bionic" equivalent of the text, wrapped with <b> tags on the "bionic" part
+ * which is also enforced with embedded CSS to ensure font-weight is applied over page styling
+ * @param word [string] a string of continuous characters derived by splitting " " on page text
+ * @returns [string] the processed text as HTML
+ */
+function bionicWord(word) {
     const mid = Math.floor(word.length / 2);
     const bionicSlice = word.slice(0, mid);
     const remainder = word.slice(mid);
     const formattedWordHTML = `<b>${bionicSlice}</b>${remainder}`;
     return formattedWordHTML;
 }
-// TODO: make this more customisable with themes?
+/**
+ *
+ * Parse Word
+ *
+ * @param word [string] a string of continuous characters derived by splitting " " on page text
+ * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing functionality for edge cases)
+ */
+function parseWord(word) {
+    // sendMessage(`Parsing word ${word}`);
+    const advancedParse = containsHyphen(word);
+    if (!advancedParse) {
+        return bionicWord(word);
+    }
+    else {
+        return advancedParse;
+    }
+}
 /**
  *
  * Parse Bionic
@@ -66,14 +107,15 @@ function parseBionic(paragraph) {
     let paragraphBionic = '';
     if (paragraph['textContent'] != null) {
         const words = paragraph.textContent.split(" ");
-        words.forEach((word, index) => {
+        words.forEach((word) => {
             let formattedWordHTML = '';
+            formattedWordHTML = parseWord(word);
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
         originalParagraphValues.push(paragraph.textContent);
         bionicParagraphValues.push(paragraphBionic);
-        sendMessage('Completed a paragraph...');
+        // sendMessage('Completed a paragraph...');
         paragraph.innerHTML = paragraphBionic;
         sendMessage('DOM updated successfully.');
     }
