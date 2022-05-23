@@ -9,6 +9,15 @@ enum ITypesBG {
     notify
 }
 
+const storageSet = (key: string, value: string) => {
+    const STORAGE_OBJ = { key: value };
+    chrome.storage.local.set(STORAGE_OBJ, () => {
+        smartLog(`Setting key '${key}' and value '${value}'`);
+    });
+}
+
+
+
 /**
  *
  * Smart Log
@@ -51,7 +60,6 @@ const sendNotification = (message: string) => {
  */
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
-    // smartLog(`Test import ${DELIMITERS.DBL_HYPHEN_A}`);
 });
 
 /**
@@ -62,6 +70,7 @@ chrome.runtime.onInstalled.addListener(() => {
  */
 chrome.action.onClicked.addListener((tab) => {
     if (tab) {
+        smartLog('Event onClick registered. Executing script...');
         chrome.scripting.executeScript({
             target: { tabId: tab.id || -1 },
             files: ['content-script.js']
