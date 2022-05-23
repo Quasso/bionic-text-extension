@@ -79,16 +79,16 @@ function bionicWord(word: string): string {
 
 /**
  *
- * Parse Word
+ * Parse String
  *
- * @param word [string] a string of continuous characters derived by splitting " " on page text
+ * @param str [string] a string of continuous characters derived by splitting " " on page text
  * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing functionality for edge cases)
  */
-function parseWord(word: string): string {
+function parseString(str: string): string {
     // sendMessage(`Parsing word ${word}`);
-    const advancedParse = containsHyphen(word);
+    const advancedParse = containsHyphen(str);
     if (!advancedParse) {
-        return bionicWord(word);
+        return bionicWord(str);
     } else {
         return advancedParse as string;
     }
@@ -112,7 +112,7 @@ function parseBionic(paragraph: Element) {
 
         words.forEach((word: string) => {
             let formattedWordHTML = '';
-            formattedWordHTML = parseWord(word);
+            formattedWordHTML = parseString(word);
             paragraphBionic += ' ' + formattedWordHTML;
             wordIndex++;
         });
