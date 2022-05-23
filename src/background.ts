@@ -101,7 +101,11 @@ chrome.runtime.onMessage.addListener(
                 break;
             case ITypesBG.store:
                 if (request.details.isInit) {
-                    storageSet(request.details.key, request.details.value);
+                    if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
+                        storageSet(sender.tab.url as string, request.details.value);
+                    } else {
+                        storageSet(request.details.key, request.details.value);
+                    }
                     smartLog('Initialised. Storage set.');
                 }
                 break;

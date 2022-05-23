@@ -1,6 +1,11 @@
 let CS_LOG_PREFIX = "[BRE: c-s via background]";
 
-let STATUS = {
+declare interface BionicReaderStatuses {
+    active: boolean;
+    init: boolean;
+}
+
+let STATUS: BionicReaderStatuses = {
     active: false,
     init: false
 };
@@ -177,7 +182,11 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
     });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
     STATUS.init = true;
-    sendMessage('Parsed all content on this page', ITypesCS.store)
+    sendMessage('Parsed all content on this page', ITypesCS.store,
+        {
+            key: 'GET_SENDER_TAB',
+            value: true
+        });
 }
 
 /**
