@@ -39,14 +39,21 @@ enum ITypesCS {
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
  */
-const sendMessage = (message: string, type?: ITypesCS, details?: any) => {
+const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
     !type ? type = ITypesCS.log : console.log('Nothing to see here');
+    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
+}
 
-    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
-        if (response && details.expectResponse) {
-            console.log(response);
-            return response;
-        }
+const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
+            if (response) {
+                console.log(response);
+                resolve(response);
+            } else {
+                reject(false);
+            }
+        });
     });
 }
 
@@ -202,18 +209,19 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
  */
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
-    sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
-    const isLoaded = sendMessage(`Check if already loaded on this page`, ITypesCS.store_read, {
-        action: 'checkPageInit',
-        expectResponse: true
+    sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
+
+    sendMessageAndAwaitResponse(`Check if already loaded on this page`, ITypesCS.store_read, {
+        action: 'checkPageInit'
+    }).then((isLoaded) => {
+        sendMessage(`Is loaded? ${isLoaded}`);
+        sendMessage(`Is init? ${STATUS.init}`);
+        if (!STATUS.init) {
+            convertPageText(paragraphs);
+        } else {
+            toggleBionic();
+        }
     });
-    sendMessage(`Is loaded? ${isLoaded}`);
-    sendMessage(`Is init? ${STATUS.init}`);
-    if (!STATUS.init) {
-        convertPageText(paragraphs);
-    } else {
-        toggleBionic();
-    }
 }
 
 /**

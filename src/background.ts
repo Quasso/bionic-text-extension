@@ -136,9 +136,15 @@ chrome.runtime.onMessage.addListener(
                 let value;
                 if (sender.tab && sender.tab.url && request.details.action === 'checkPageInit') {
                     smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
-                    value = storageGet(STORAGE_PREFIX + sender.tab.url as string);
+                    storageGet(STORAGE_PREFIX + sender.tab.url as string).then((value) => {
+                        console.log(value);
+                        sendResponse(value);
+                    });
                 } else {
-                    value = storageGet(request.details.key);
+                    storageGet(request.details.key).then((value) => {
+                        console.log(value);
+                        sendResponse(value);
+                    });
                 }
                 if (value) {
                     console.log(value);
