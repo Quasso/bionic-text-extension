@@ -104,6 +104,11 @@ chrome.action.onClicked.addListener((tab) => {
     }
 });
 
+const formatKey = (url: string): string => {
+    const cleanUrl = url.replace(/[^a-zA-Z0-9-]/g, '');
+    return STORAGE_PREFIX + cleanUrl;
+}
+
 /**
  *
  * onMessage handler
@@ -129,23 +134,26 @@ chrome.runtime.onMessage.addListener(
             case ITypesBG.store_create:
                 if (request.details.value) {
                     if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
-                        storageSet(STORAGE_PREFIX + sender.tab.url as string, request.details.value);
+                        storageSet(formatKey(sender.tab.url as string), request.details.value);
+                    } else {
+                        storageSet(formatKey(request.details.key), request.details.value);
                     }
                 }
                 break;
             case ITypesBG.store_read:
                 smartLog('Reading from the local store for the extension...');
                 let value;
-                if (sender.tab && sender.tab.url && request.details.action === 'checkPageInit') {
+                if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
                     smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
-                    storageGet(STORAGE_PREFIX + sender.tab.url as string).then((value) => {
-                        console.log(value);
-                        sendResponse(value);
-                    }, () => {
-                        console.log('failed');
-                    });
+                    storageGet(formatKey(sender.tab.url as string))
+                        .then((value) => {
+                            console.log(value);
+                            sendResponse(value);
+                        }, (err) => {
+                            console.log('Get storage failed:', err);
+                        });
                 } else {
-                    storageGet(request.details.key).then((value) => {
+                    storageGet(formatKey(request.details.key)).then((value) => {
                         console.log(value);
                         sendResponse(value);
                     });
