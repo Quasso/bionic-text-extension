@@ -194,7 +194,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
     STATUS.init = true;
     sendMessage('Parsed all content on this page', ITypesCS.store_create,
         {
-            isInit: true,
+            value: true,
             key: 'GET_SENDER_TAB'
         });
 }
@@ -211,17 +211,20 @@ const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
 
-    sendMessageAndAwaitResponse(`Check if already loaded on this page`, ITypesCS.store_read, {
-        action: 'checkPageInit'
-    }).then((isLoaded) => {
-        sendMessage(`Is loaded? ${isLoaded}`);
-        sendMessage(`Is init? ${STATUS.init}`);
-        if (!STATUS.init) {
-            convertPageText(paragraphs);
-        } else {
-            toggleBionic();
-        }
-    });
+    sendMessageAndAwaitResponse(
+        `Check if already loaded on this page`,
+        ITypesCS.store_read,
+        {
+            action: 'checkPageInit'
+        }).then((isLoaded) => {
+            sendMessage(`Is loaded? ${isLoaded}`);
+            sendMessage(`Is init? ${STATUS.init}`);
+            if (!STATUS.init && !isLoaded) {
+                convertPageText(paragraphs);
+            } else {
+                toggleBionic();
+            }
+        });
 }
 
 /**

@@ -13,21 +13,27 @@ enum ITypesBG {
 }
 
 const storageSet = (key: string, value: string) => {
-    const STORAGE_OBJ = { key: value };
+    const valueObj = {
+        active: value
+    };
+
+    const STORAGE_OBJ = { key: valueObj };
     chrome.storage.local.set(STORAGE_OBJ, () => {
-        smartLog(`Setting key '${key}' and value '${value}'`);
+        smartLog(`Set key '${key}' and value '${value}'`);
     });
 }
 
 const storageGet = (key: string): Promise<any | boolean> => {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([`${key}`], (value) => {
-            if (value) {
+            smartLog('Val is:');
+            console.log(value);
+            if (Object.entries(value).length > 0) {
                 smartLog(`Got key '${key}' with value '${value}'`);
-                resolve(value);
+                resolve(value.active);
             } else {
                 smartLog(`No matching value for the key ${key}`);
-                reject(value);
+                resolve(false);
             }
         });
     });
@@ -77,10 +83,9 @@ const sendNotification = (message: string) => {
  *
  */
 chrome.runtime.onInstalled.addListener(() => {
-    smartLog('Initialised successfully.');
-    // chrome.browserAction.setIcon({
-    //     path: chrome.runtime.getURL("assets/compiled/bio-128.png")
-    // });
+    chrome.storage.local.clear().then(() => {
+        smartLog('Initialised successfully.');
+    });
 });
 
 /**
@@ -122,23 +127,22 @@ chrome.runtime.onMessage.addListener(
                 sendNotification(request.message);
                 break;
             case ITypesBG.store_create:
-                if (request.details.isInit) {
+                if (request.details.value) {
                     if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
                         storageSet(STORAGE_PREFIX + sender.tab.url as string, request.details.value);
-                    } else {
-                        storageSet(request.details.key, request.details.isInit);
                     }
-                    smartLog('Initialised. Storage set.');
                 }
                 break;
             case ITypesBG.store_read:
-                smartLog('Should try to read from store...');
+                smartLog('Reading from the local store for the extension...');
                 let value;
                 if (sender.tab && sender.tab.url && request.details.action === 'checkPageInit') {
                     smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
                     storageGet(STORAGE_PREFIX + sender.tab.url as string).then((value) => {
                         console.log(value);
                         sendResponse(value);
+                    }, () => {
+                        console.log('failed');
                     });
                 } else {
                     storageGet(request.details.key).then((value) => {
