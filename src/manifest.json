@@ -1,6 +1,6 @@
 {
     "name": "Bionic Reader Extension",
-    "description": "A new concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
+    "description": "A concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
     "version": "0.0.3",
     "manifest_version": 3,
     "permissions": [
@@ -32,7 +32,8 @@
                 "https://*.medium.com/*",
                 "https://*.economist.com/*",
                 "https://*.nytimes.com/*",
-                "https://*.wsj.com/*"
+                "https://*.wsj.com/*",
+                "https://*.wikipedia.org/*"
             ],
             "css": [
                 "bre.css"
