@@ -69,6 +69,9 @@ const sendNotification = (message: string) => {
  */
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
+    chrome.browserAction.setIcon({
+        path: chrome.runtime.getURL("assets/compiled/bio-128.png")
+    });
 });
 
 /**
