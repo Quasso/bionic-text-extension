@@ -41,15 +41,11 @@ module.exports = {
                     to: path.join(__dirname, "../dist")
                 },
                 {
-                    from: path.resolve(__dirname, "..", "src/bionic-popup.css"),
-                    to: path.join(__dirname, "../dist")
-                },
-                {
                     from: path.resolve(__dirname, "..", "src/bre.css"),
                     to: path.join(__dirname, "../dist")
                 },
                 {
-                    from: path.resolve(__dirname, "..", "assets/compiled/bio-**.png"),
+                    from: path.resolve(__dirname, "..", "assets/compiled/icon-**.png"),
                     to: path.join(__dirname, "../dist")
                 }
             ]

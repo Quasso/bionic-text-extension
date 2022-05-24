@@ -43,8 +43,9 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any) => {
     !type ? type = ITypesCS.log : console.log('Nothing to see here');
 
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
-        if (response) {
+        if (response && details.expectResponse) {
             console.log(response);
+            return response;
         }
     });
 }
@@ -202,10 +203,11 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`There are ${paragraphs.length} paragraphs to parse.`);
-    sendMessage(`Check if already loaded on this page`, ITypesCS.store_read, {
+    const isLoaded = sendMessage(`Check if already loaded on this page`, ITypesCS.store_read, {
         action: 'checkPageInit',
         expectResponse: true
     });
+    sendMessage(`Is loaded? ${isLoaded}`);
     sendMessage(`Is init? ${STATUS.init}`);
     if (!STATUS.init) {
         convertPageText(paragraphs);

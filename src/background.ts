@@ -19,10 +19,19 @@ const storageSet = (key: string, value: string) => {
     });
 }
 
-const storageGet = (key: string) => {
-    chrome.storage.local.get([`${key}`], (value) => {
-        smartLog(`Got key '${key}' with value '${value}'`);
+const storageGet = (key: string): Promise<any | boolean> => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get([`${key}`], (value) => {
+            if (value) {
+                smartLog(`Got key '${key}' with value '${value}'`);
+                resolve(value);
+            } else {
+                smartLog(`No matching value for the key ${key}`);
+                reject(value);
+            }
+        });
     });
+
 }
 
 
@@ -56,7 +65,7 @@ const sendNotification = (message: string) => {
         type: "basic",
         title: "Bionic Reader Extension",
         message,
-        iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
+        iconUrl: chrome.runtime.getURL("assets/compiled/icon-128.png")
     };
 
     chrome.notifications.create(NOTIFICATION_OPTIONS);
@@ -69,9 +78,9 @@ const sendNotification = (message: string) => {
  */
 chrome.runtime.onInstalled.addListener(() => {
     smartLog('Initialised successfully.');
-    chrome.browserAction.setIcon({
-        path: chrome.runtime.getURL("assets/compiled/bio-128.png")
-    });
+    // chrome.browserAction.setIcon({
+    //     path: chrome.runtime.getURL("assets/compiled/bio-128.png")
+    // });
 });
 
 /**
@@ -124,13 +133,16 @@ chrome.runtime.onMessage.addListener(
                 break;
             case ITypesBG.store_read:
                 smartLog('Should try to read from store...');
+                let value;
                 if (sender.tab && sender.tab.url && request.details.action === 'checkPageInit') {
                     smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
-                    storageGet(STORAGE_PREFIX + sender.tab.url as string);
+                    value = storageGet(STORAGE_PREFIX + sender.tab.url as string);
                 } else {
-                    storageGet(request.details.key);
+                    value = storageGet(request.details.key);
                 }
-                smartLog('Initialised. Storage set.');
+                if (value) {
+                    console.log(value);
+                }
                 break;
         }
     }
