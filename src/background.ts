@@ -53,7 +53,6 @@ const storageGet = (key: string): Promise<StorageObject> => {
             }
         });
     });
-
 }
 
 
@@ -131,18 +130,21 @@ const handleAction = (action: string): Promise<StorageObject> => {
         switch (action) {
             case 'checkPageInit':
                 const key = StorageKind.is_active;
-                return storageGet(key)
+                storageGet(key)
                     .then((value) => {
                         if (value) {
                             console.log('Sending response with val...');
                             console.log('Confirm value immediately before send:');
                             console.log(value);
                             resolve(value);
+                        } else {
+                            resolve({ isActive: false });
                         }
                     }, (err) => {
                         console.log('Get storage failed:', err);
                         reject(err);
                     });
+                break;
             default:
                 reject(false);
                 break;
@@ -183,9 +185,10 @@ chrome.runtime.onMessage.addListener(
             case ITypesBG.store_read:
                 smartLog('Reading from the local store for the extension. Details:');
                 console.log(request.details);
-                // request.details.action
+                smartLog('Action:');
+                console.log(request.details.action);
                 handleAction(request.details.action).then((value: StorageObject) => {
-                    console.log('Should handle bidness!', value);
+                    console.log(value);
                     sendResponse(value);
                 });
                 break;
