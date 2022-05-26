@@ -12,28 +12,44 @@ enum ITypesBG {
     store_read
 }
 
-const storageSet = (key: string, value: string) => {
-    const valueObj = {
-        active: value
-    };
+enum StorageKind {
+    is_active = "isActive"
+}
 
-    const STORAGE_OBJ = { key: valueObj };
+declare interface StorageObject {
+    isActive?: boolean;
+    exists?: boolean;
+}
+
+const storageSet = (value: boolean | string, kind: StorageKind) => {
+    let STORAGE_OBJ: StorageObject;
+
+    switch (kind) {
+        case StorageKind.is_active:
+            STORAGE_OBJ = {
+                isActive: value as boolean
+            }
+            break;
+    }
     chrome.storage.local.set(STORAGE_OBJ, () => {
-        smartLog(`Set key '${key}' and value '${value}'`);
+        // smartLog(`Set key '${key}' and value '${value}'`);
+        smartLog(`Set storage object: ${STORAGE_OBJ}`);
     });
 }
 
-const storageGet = (key: string): Promise<any | boolean> => {
+const storageGet = (key: string): Promise<StorageObject> => {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get([`${key}`], (value) => {
+        chrome.storage.local.get([`${key}`], (value: StorageObject) => {
             smartLog('Val is:');
             console.log(value);
             if (Object.entries(value).length > 0) {
                 smartLog(`Got key '${key}' with value '${value}'`);
-                resolve(value.active);
+                smartLog('Val is (sanity check #2):');
+                console.log(value);
+                resolve(value);
             } else {
                 smartLog(`No matching value for the key ${key}`);
-                resolve(false);
+                resolve({ exists: false });
             }
         });
     });
@@ -109,6 +125,32 @@ const formatKey = (url: string): string => {
     return STORAGE_PREFIX + cleanUrl;
 }
 
+
+const handleAction = (action: string): Promise<StorageObject> => {
+    return new Promise((resolve, reject) => {
+        switch (action) {
+            case 'checkPageInit':
+                const key = StorageKind.is_active;
+                return storageGet(key)
+                    .then((value) => {
+                        if (value) {
+                            console.log('Sending response with val...');
+                            console.log('Confirm value immediately before send:');
+                            console.log(value);
+                            resolve(value);
+                        }
+                    }, (err) => {
+                        console.log('Get storage failed:', err);
+                        reject(err);
+                    });
+            default:
+                reject(false);
+                break;
+        }
+    });
+}
+
+
 /**
  *
  * onMessage handler
@@ -116,7 +158,7 @@ const formatKey = (url: string): string => {
  * Description: for bi-directional communication from the contentScript once running
  */
 chrome.runtime.onMessage.addListener(
-    (request, sender, sendResponse) => {
+    function (request, sender, sendResponse) {
         if (sender.tab) {
             smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix, true);
         }
@@ -133,34 +175,19 @@ chrome.runtime.onMessage.addListener(
                 break;
             case ITypesBG.store_create:
                 if (request.details.value) {
-                    if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
-                        storageSet(formatKey(sender.tab.url as string), request.details.value);
-                    } else {
-                        storageSet(formatKey(request.details.key), request.details.value);
+                    if (request.details.action == 'setPageInit') {
+                        storageSet(request.details.value, StorageKind.is_active);
                     }
                 }
                 break;
             case ITypesBG.store_read:
-                smartLog('Reading from the local store for the extension...');
-                let value;
-                if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
-                    smartLog(`Storage pref: ${STORAGE_PREFIX} Sender tab url: ${sender.tab.url}`);
-                    storageGet(formatKey(sender.tab.url as string))
-                        .then((value) => {
-                            console.log(value);
-                            sendResponse(value);
-                        }, (err) => {
-                            console.log('Get storage failed:', err);
-                        });
-                } else {
-                    storageGet(formatKey(request.details.key)).then((value) => {
-                        console.log(value);
-                        sendResponse(value);
-                    });
-                }
-                if (value) {
-                    console.log(value);
-                }
+                smartLog('Reading from the local store for the extension. Details:');
+                console.log(request.details);
+                // request.details.action
+                handleAction(request.details.action).then((value: StorageObject) => {
+                    console.log('Should handle bidness!', value);
+                    sendResponse(value);
+                });
                 break;
         }
     }

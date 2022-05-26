@@ -33,7 +33,7 @@ module.exports = {
                     to: path.join(__dirname, "../dist")
                 },
                 {
-                    from: path.resolve(__dirname, "..", "src/bionic-popup.html"),
+                    from: path.resolve(__dirname, "..", "src/popup.html"),
                     to: path.join(__dirname, "../dist")
                 },
                 {

@@ -12,6 +12,7 @@
     "action": {
         "browser_action": {
             "default_title": "Bionic Reader",
+            "default_popup": "popup.html",
             "icons": {
                 "128": "./assets/compiled/icon-128.png"
             }

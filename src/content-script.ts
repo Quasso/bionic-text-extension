@@ -44,17 +44,26 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
 }
 
-const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<any> => {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
-            if (response) {
-                console.log(response);
-                resolve(response);
-            } else {
-                reject(false);
-            }
-        });
+const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): any => {
+    // return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
+        const exists = response.exists;
+        sendMessage(`Response block triggered! With resp: ${response}`); //recursive baby!
+        sendMessage(`Response was: ${response}`);
+        if (response == undefined) {
+            sendMessage("Response was undefined, need to sort this out...");
+            // resolve(undefined);
+        } else if (!exists) {
+            sendMessage("Response was false, meaning the key did not have a value.");
+            // resolve(false);
+        } else if (exists) {
+            console.log(response);
+            sendMessage(`Response was ${response}`);
+            // resolve(response);
+        }
+        return response;
     });
+    // });
 }
 
 /**
@@ -195,7 +204,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
     sendMessage('Parsed all content on this page', ITypesCS.store_create,
         {
             value: true,
-            key: 'GET_SENDER_TAB'
+            action: 'setPageInit',
         });
 }
 
@@ -210,21 +219,29 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
-
-    sendMessageAndAwaitResponse(
+    // .then((value) => {
+    //     sendMessage(`Is loaded? ${value.exists}`);
+    //     sendMessage(`Is init? ${STATUS.init}`);
+    //     if (!STATUS.init && !value.exists) {
+    //         convertPageText(paragraphs);
+    //     } else {
+    //         toggleBionic();
+    //     }
+    // });
+    const value = sendMessageAndAwaitResponse(
         `Check if already loaded on this page`,
         ITypesCS.store_read,
         {
-            action: 'checkPageInit'
-        }).then((isLoaded) => {
-            sendMessage(`Is loaded? ${isLoaded}`);
-            sendMessage(`Is init? ${STATUS.init}`);
-            if (!STATUS.init && !isLoaded) {
-                convertPageText(paragraphs);
-            } else {
-                toggleBionic();
-            }
+            action: 'checkPageInit',
+            key: 'isActive'
         });
+    sendMessage(`Is loaded? ${value.exists}`);
+    sendMessage(`Is init? ${STATUS.init}`);
+    if (!STATUS.init || !value.exists) {
+        convertPageText(paragraphs);
+    } else {
+        toggleBionic();
+    }
 }
 
 /**
