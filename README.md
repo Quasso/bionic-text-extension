@@ -1,6 +1,16 @@
 # Bionic Reader Extension
 
+## UI
+
 ![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Reader Extension: Cover Image")
+
+###  Example A in action (MIT Technology Review)
+
+![MIT Technology Review](assets/Extension_MIT.png "Bionic Reader Extension: MIT Technology Review")
+
+###  Example B in action (Wikipedia)
+
+![Wikipedia](assets/Extension_Wikipedia.png "Bionic Reader Extension: Wikipedia")
 
 ## Description
 
