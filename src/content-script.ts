@@ -1,5 +1,5 @@
-let CS_LOG_PREFIX = "[BRE: c-s via background]";
-
+const CS_LOG_PREFIX = "[BRE: c-s via background]";
+const CLASS_INIT = 'bre-initialised';
 declare interface BionicReaderStatuses {
     active: boolean;
     init: boolean;
@@ -46,7 +46,7 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
 
 const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<boolean | undefined> => {
     return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
+        chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
             const exists: boolean = response.exists;
             sendMessage(`Response block triggered! With resp: ${response}`); //recursive baby!
             sendMessage(`Response was: ${response}`);
@@ -62,7 +62,6 @@ const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?:
                 sendMessage(`Response was ${response}`);
                 resolve(exists);
             }
-            return response;
         });
     });
 }
@@ -186,6 +185,19 @@ const toggleBionic = () => {
     sendMessage(`Toggling bionic state from '${STATUS.active}'...`, ITypesCS.notify);
 }
 
+const initialised = () => {
+    STATUS.init = true;
+    // This works fine for actually setting a value, however return comms
+    // for some reason are missing the populated they should return
+    sendMessage('Parsed all content on this page', ITypesCS.store_create,
+        {
+            value: true,
+            action: 'setPageInit',
+        });
+    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
+    sendMessage(`Appending the class`)
+    document.querySelector('body')?.classList.add(CLASS_INIT);
+}
 /**
  *
  * Convert Page Text
@@ -200,13 +212,11 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
         sendMessage('Handling paragraph...');
         parseBionic(paragraph);
     });
-    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
-    STATUS.init = true;
-    sendMessage('Parsed all content on this page', ITypesCS.store_create,
-        {
-            value: true,
-            action: 'setPageInit',
-        });
+    initialised();
+}
+
+const checkInit = (): boolean => {
+    return document.querySelector('body')?.classList.contains(CLASS_INIT) || false;
 }
 
 /**
@@ -220,24 +230,24 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
+    const isActive = checkInit();
+    sendMessage(`Is loaded? ${isActive}`);
 
-    sendMessageAndAwaitResponse(
-        `Check if already loaded on this page`,
-        ITypesCS.store_read,
-        {
-            action: 'checkPageInit',
-            key: 'isActive'
-        })
-        .then((isActive) => {
-            sendMessage(`Is loaded? ${isActive}`);
+    if (!isActive) {
+        convertPageText(paragraphs);
+    } else {
+        toggleBionic();
+    }
 
-            if (!isActive) {
-                convertPageText(paragraphs);
-            } else {
-                toggleBionic();
-            }
-        });
-
+    // sendMessageAndAwaitResponse(
+    //     `Check if already loaded on this page`,
+    //     ITypesCS.store_read,
+    //     {
+    //         action: 'checkPageInit',
+    //         key: 'isActive'
+    //     })
+    //     .then((isActive) => {
+    //     });
 }
 
 /**

@@ -160,7 +160,7 @@ const handleAction = (action: string): Promise<StorageObject> => {
  * Description: for bi-directional communication from the contentScript once running
  */
 chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
+    (request, sender, sendResponse) => {
         if (sender.tab) {
             smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix, true);
         }
@@ -189,6 +189,7 @@ chrome.runtime.onMessage.addListener(
                 console.log(request.details.action);
                 handleAction(request.details.action).then((value: StorageObject) => {
                     console.log(value);
+                    console.log(sendResponse);
                     sendResponse(value);
                 });
                 break;
