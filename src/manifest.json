@@ -1,21 +1,20 @@
 {
     "name": "Bionic Reader Extension",
-    "description": "A new concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
-    "version": "0.0.3",
+    "description": "A concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
+    "version": "1.0.0",
     "manifest_version": 3,
     "permissions": [
         "activeTab",
         "scripting",
-        "notifications"
+        "notifications",
+        "storage"
     ],
     "action": {
         "browser_action": {
             "default_title": "Bionic Reader",
+            "default_popup": "popup.html",
             "icons": {
-                "16": "./assets/compiled/bio-16.png",
-                "32": "./assets/compiled/bio-32.png",
-                "48": "./assets/compiled/bio-48.png",
-                "128": "./assets/compiled/bio-128.png"
+                "128": "./assets/compiled/icon-128.png"
             }
         }
     },
@@ -32,7 +31,32 @@
                 "https://*.medium.com/*",
                 "https://*.economist.com/*",
                 "https://*.nytimes.com/*",
-                "https://*.wsj.com/*"
+                "https://*.wsj.com/*",
+                "https://*.wikipedia.org/*",
+                "https://*.bbc.com/news/*",
+                "https://*.bbc.co.uk/news/*",
+                "https://*.bloomberg.com/*",
+                "https://*.theepochtimes.com/*",
+                "https://*.foxnews.com/*",
+                "https://finance.yahoo.com/*",
+                "https://news.yahoo.com/*",
+                "https://*.theguardian.com/*",
+                "https://*.washingtonpost.com/*",
+                "https://*.cnbc.com/*",
+                "https://*.express.co.uk/*",
+                "https://*.usatoday.com/*",
+                "https://*.buzzfeed.com/*",
+                "https://*.thesun.com/*",
+                "https://*.nypost.com/*",
+                "https://*.businessinsider.com/*",
+                "https://*.forbes.com/*",
+                "https://*.indepedent.co.uk/*",
+                "https://*.abc.net.au/*",
+                "https://*.news.com.au/*",
+                "https://*.mirror.co.uk/*",
+                "https://*.indiatimes.com/*",
+                "https://*.huffingtonpost.com/*",
+                "https://*.nbcnews.com/*"
             ],
             "css": [
                 "bre.css"

@@ -1,20 +1,60 @@
 const DEBUG = true;
 const VERBOSE = false;
 const DEFAULT_LOG_PREFIX = "[BRE: background]";
+const STORAGE_PREFIX = 'breStatus-';
 
 enum ITypesBG {
     log,
     action,
     notify,
-    store
+    store,
+    store_create,
+    store_read
 }
 
-const storageSet = (key: string, value: string) => {
-    const STORAGE_OBJ = { key: value };
+enum StorageKind {
+    is_active = "isActive"
+}
+
+declare interface StorageObject {
+    isActive?: boolean;
+    exists?: boolean;
+}
+
+const storageSet = (value: boolean | string, kind: StorageKind) => {
+    let STORAGE_OBJ: StorageObject;
+
+    switch (kind) {
+        case StorageKind.is_active:
+            STORAGE_OBJ = {
+                isActive: value as boolean
+            }
+            break;
+    }
     chrome.storage.local.set(STORAGE_OBJ, () => {
-        smartLog(`Setting key '${key}' and value '${value}'`);
+        // smartLog(`Set key '${key}' and value '${value}'`);
+        smartLog(`Set storage object: ${STORAGE_OBJ}`);
     });
 }
+
+const storageGet = (key: string): Promise<StorageObject> => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get([`${key}`], (value: StorageObject) => {
+            smartLog('Val is:');
+            console.log(value);
+            if (Object.entries(value).length > 0) {
+                smartLog(`Got key '${key}' with value '${value}'`);
+                smartLog('Val is (sanity check #2):');
+                console.log(value);
+                resolve(value);
+            } else {
+                smartLog(`No matching value for the key ${key}`);
+                resolve({ isActive: false, exists: false });
+            }
+        });
+    });
+}
+
 
 /**
  *
@@ -46,7 +86,7 @@ const sendNotification = (message: string) => {
         type: "basic",
         title: "Bionic Reader Extension",
         message,
-        iconUrl: chrome.runtime.getURL("assets/compiled/bio-128.png")
+        iconUrl: chrome.runtime.getURL("assets/compiled/icon-128.png")
     };
 
     chrome.notifications.create(NOTIFICATION_OPTIONS);
@@ -58,7 +98,9 @@ const sendNotification = (message: string) => {
  *
  */
 chrome.runtime.onInstalled.addListener(() => {
-    smartLog('Initialised successfully.');
+    chrome.storage.local.clear().then(() => {
+        smartLog('Initialised successfully.');
+    });
 });
 
 /**
@@ -76,6 +118,40 @@ chrome.action.onClicked.addListener((tab) => {
         });
     }
 });
+
+const formatKey = (url: string): string => {
+    const cleanUrl = url.replace(/[^a-zA-Z0-9-]/g, '');
+    return STORAGE_PREFIX + cleanUrl;
+}
+
+
+const handleAction = (action: string): Promise<StorageObject> => {
+    return new Promise((resolve, reject) => {
+        switch (action) {
+            case 'checkPageInit':
+                const key = StorageKind.is_active;
+                storageGet(key)
+                    .then((value) => {
+                        if (value) {
+                            console.log('Sending response with val...');
+                            console.log('Confirm value immediately before send:');
+                            console.log(value);
+                            resolve(value);
+                        } else {
+                            resolve({ isActive: false });
+                        }
+                    }, (err) => {
+                        console.log('Get storage failed:', err);
+                        reject(err);
+                    });
+                break;
+            default:
+                reject(false);
+                break;
+        }
+    });
+}
+
 
 /**
  *
@@ -99,15 +175,23 @@ chrome.runtime.onMessage.addListener(
             case ITypesBG.notify:
                 sendNotification(request.message);
                 break;
-            case ITypesBG.store:
-                if (request.details.isInit) {
-                    if (request.details.key == 'GET_SENDER_TAB' && sender.tab) {
-                        storageSet(sender.tab.url as string, request.details.value);
-                    } else {
-                        storageSet(request.details.key, request.details.value);
+            case ITypesBG.store_create:
+                if (request.details.value) {
+                    if (request.details.action == 'setPageInit') {
+                        storageSet(request.details.value, StorageKind.is_active);
                     }
-                    smartLog('Initialised. Storage set.');
                 }
+                break;
+            case ITypesBG.store_read:
+                smartLog('Reading from the local store for the extension. Details:');
+                console.log(request.details);
+                smartLog('Action:');
+                console.log(request.details.action);
+                handleAction(request.details.action).then((value: StorageObject) => {
+                    console.log(value);
+                    console.log(sendResponse);
+                    sendResponse(value);
+                });
                 break;
         }
     }
