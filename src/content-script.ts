@@ -1,4 +1,4 @@
-import { CLASS_INACTIVE, CLASS_INIT, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE } from './interfaces';
+import { Actions, CLASS_INACTIVE, CLASS_ACTIVE, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE } from './interfaces';
 
 // Initial values
 let originalParagraphValues: Array<string> = [];
@@ -166,25 +166,29 @@ const parseBionic = (paragraph: Element) => {
     paragraphIndex++;
 }
 
-const toggleActiveClass = (isActive: boolean) => {
-    sendMessage(`Toggling bionic state from '${isActive}' to '${!isActive}'...`, MessageTypes.notify);
+/**
+ *
+ * Toggle Bionic
+ *
+ * @description based on the extension's current state, toggles a class
+ * on the page body which effectively appears to revert the bionic
+ * parsing, where in reality it only modifies the DOM on first
+ * load/parse
+ * @param isActive [boolean] whether or not bionic text is active
+ */
+const toggleBionic = (isActive: boolean): void => {
     switch (isActive) {
         case true:
-            document.querySelector('body')?.classList.remove(CLASS_INIT);
+            document.querySelector('body')?.classList.remove(CLASS_ACTIVE);
             document.querySelector('body')?.classList.add(CLASS_INACTIVE);
+            sendMessage(`Bionic Text has been disabled on this page...`, MessageTypes.notify);
             break;
         case false:
-            document.querySelector('body')?.classList.add(CLASS_INIT);
+            document.querySelector('body')?.classList.add(CLASS_ACTIVE);
             document.querySelector('body')?.classList.remove(CLASS_INACTIVE);
+            sendMessage(`Bionic Text has been enabled on this page...`, MessageTypes.notify);
             break;
     }
-
-}
-
-const toggleBionic = (isActive: boolean) => {
-    // const isActive = document.querySelector('body')?.classList.contains(CLASS_INIT);
-
-    toggleActiveClass(isActive as boolean);
 }
 
 const initialised = () => {
@@ -195,11 +199,11 @@ const initialised = () => {
     sendMessage('Parsed all content on this page', MessageTypes.store_create,
         {
             value: true,
-            action: 'setPageInit',
+            action: Actions.set_page_init,
         });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, MessageTypes.notify);
     sendMessage(`Appending the class`);
-    toggleActiveClass(false);
+    toggleBionic(false);
 }
 
 /**
@@ -220,7 +224,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 }
 
 const checkInit = (): boolean => {
-    return document.querySelector('body')?.classList.contains(CLASS_INIT) || false;
+    return document.querySelector('body')?.classList.contains(CLASS_ACTIVE) || false;
 }
 
 /**
@@ -231,7 +235,7 @@ const checkInit = (): boolean => {
  * so that it can be parsed/formatted!
  *
  */
-const autoGrabParagraphs = () => {
+const autoGrabParagraphs = (): void => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
     const isInit = checkInit();
@@ -240,6 +244,7 @@ const autoGrabParagraphs = () => {
     if (!isInit) {
         convertPageText(paragraphs);
     } else {
+        // It's more efficient to simply toggle a class which prevents <b> elements from rendering bold once initialised!
         toggleBionic(isInit);
     }
 }
@@ -251,8 +256,8 @@ const autoGrabParagraphs = () => {
  * @description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
  *
  */
-const initContentScript = () => {
-    sendMessage("Content script initialised!");
+const initContentScript = (): void => {
+    sendMessage("Content script initialising...");
     autoGrabParagraphs();
 }
 
