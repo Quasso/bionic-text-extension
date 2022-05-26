@@ -6,8 +6,7 @@
     "permissions": [
         "activeTab",
         "scripting",
-        "notifications",
-        "storage"
+        "notifications"
     ],
     "action": {
         "browser_action": {

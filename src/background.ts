@@ -2,59 +2,6 @@ import { Actions, DEBUG, DEFAULT_LOG_PREFIX, MessageTypes, StorageKind, StorageO
 
 /**
  *
- * Storage Set
- *
- * @description wrapper around the native API chrome.storage.local (not sync!) to
- * store an object with a given key
- * @param value [boolean | string] the value to assign inside the storage object
- * @param kind [StorageKind enum] determines the storage object structure and
- * how the value is assigned to it
- */
-const storageSet = (value: boolean | string, kind: StorageKind) => {
-    let STORAGE_OBJ: StorageObject;
-
-    switch (kind) {
-        case StorageKind.is_active:
-            STORAGE_OBJ = {
-                isActive: value as boolean
-            }
-            break;
-    }
-    chrome.storage.local.set(STORAGE_OBJ, () => {
-        smartLog(`Set storage object: ${STORAGE_OBJ}`);
-    });
-}
-
-/**
- *
- * Storage Get
- *
- * @description wrapper around the native API chrome.storage.local (not sync!) to
- * retrieve a stored object with a given key
- * @param key [string] the key to search the storage for in order to retrieve a StorageObject
- * @returns [Promise<StorageObject>] a promise with a valid StorageObject for the caller to handle
- */
-const storageGet = (key: string): Promise<StorageObject> => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get([`${key}`], (value: StorageObject) => {
-            smartLog('Val is:');
-            console.log(value);
-            if (Object.entries(value).length > 0) {
-                smartLog(`Got key '${key}' with value '${value}'`);
-                smartLog('Val is (sanity check #2):');
-                console.log(value);
-                resolve(value);
-            } else {
-                smartLog(`No matching value for the key ${key}`);
-                resolve({ isActive: false, exists: false });
-            }
-        });
-    });
-}
-
-
-/**
- *
  * Smart Log
  *
  * @description helps with logging out stuff to the console of the background worker in Chrome
@@ -95,16 +42,14 @@ const sendNotification = (message: string) => {
  *
  */
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.clear().then(() => {
-        smartLog('Initialised successfully.');
-    });
+    smartLog('Initialised successfully.');
 });
 
 /**
  *
  * onClicked handler for contentScript
  *
- * Description: Listen for the user clicking the extension's icon
+ * @description listen for the user clicking the extension's icon
  */
 chrome.action.onClicked.addListener((tab) => {
     if (tab) {
@@ -130,43 +75,9 @@ const formatKey = (url: string): string => {
 
 /**
  *
- * Handle Action
- *
- * @param action [string] 
- * @returns 
- */
-const handleAction = (action: string): Promise<StorageObject> => {
-    return new Promise((resolve, reject) => {
-        switch (action) {
-            case Actions.check_init:
-                const key = StorageKind.is_active;
-                storageGet(key)
-                    .then((value) => {
-                        if (value) {
-                            console.log('Sending response with val...');
-                            console.log('Confirm value immediately before send:');
-                            console.log(value);
-                            resolve(value);
-                        } else {
-                            resolve({ isActive: false });
-                        }
-                    }, (err) => {
-                        console.log('Get storage failed:', err);
-                        reject(err);
-                    });
-                break;
-            default:
-                reject(false);
-                break;
-        }
-    });
-}
-
-/**
- *
  * onMessage handler
  *
- * Description: for bi-directional communication from the contentScript once running
+ * @description for bi-directional communication from the contentScript once running
  */
 chrome.runtime.onMessage.addListener(
     (request, sender, sendResponse) => {
@@ -180,23 +91,6 @@ chrome.runtime.onMessage.addListener(
                 break;
             case MessageTypes.notify:
                 sendNotification(request.message);
-                break;
-            case MessageTypes.store_create:
-                if (request.details.value) {
-                    if (request.details.action == Actions.set_page_init) {
-                        storageSet(request.details.value, StorageKind.is_active);
-                    }
-                }
-                break;
-            case MessageTypes.store_read:
-                smartLog('Reading from the local store for the extension. Details:', request.prefix, true);
-                console.log(request.details, request.prefix, true);
-
-                handleAction(request.details.action).then((value: StorageObject) => {
-                    console.log(value);
-                    console.log(sendResponse);
-                    sendResponse(value);
-                });
                 break;
         }
     }
