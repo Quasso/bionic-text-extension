@@ -1,4 +1,4 @@
-import { Actions, CLASS_INACTIVE, CLASS_ACTIVE, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE } from './interfaces';
+import { Actions, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE, BreClasses } from './interfaces';
 
 // Initial values
 let originalParagraphValues: Array<string> = [];
@@ -176,19 +176,33 @@ const parseBionic = (paragraph: Element) => {
  * load/parse
  * @param isActive [boolean] whether or not bionic text is active
  */
-const toggleBionic = (isActive: boolean): void => {
-    switch (isActive) {
-        case true:
-            document.querySelector('body')?.classList.remove(CLASS_ACTIVE);
-            document.querySelector('body')?.classList.add(CLASS_INACTIVE);
-            sendMessage(`Bionic Text has been disabled on this page...`, MessageTypes.notify);
-            break;
-        case false:
-            document.querySelector('body')?.classList.add(CLASS_ACTIVE);
-            document.querySelector('body')?.classList.remove(CLASS_INACTIVE);
-            sendMessage(`Bionic Text has been enabled on this page...`, MessageTypes.notify);
-            break;
-    }
+const toggleBionic = (): void => {
+    const bodyClasses = document.querySelector('body')?.classList;
+    bodyClasses?.forEach((className: string) => {
+        switch (className) {
+            case BreClasses.CLASS_ACTIVE:
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_CUSTOM);
+                sendMessage(`Bionic Text is enabled and has been set to custom style this page...`, MessageTypes.notify);
+                break;
+            case BreClasses.CLASS_CUSTOM:
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_ACTIVE);
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_CUSTOM);
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_INACTIVE);
+                sendMessage(`Bionic Text has been disabled on this page...`, MessageTypes.notify);
+                break;
+            case BreClasses.CLASS_INACTIVE:
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_INACTIVE);
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
+                sendMessage(`Bionic Text has been enabled on this page...`, MessageTypes.notify);
+                break;
+        }
+    });
+}
+
+const finaliseInit = () => {
+    document.querySelector('body')?.classList.add(BreClasses.CLASS_INIT);
+    document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
+    sendMessage('Fully initialised & active.');
 }
 
 const initialised = () => {
@@ -203,7 +217,7 @@ const initialised = () => {
         });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, MessageTypes.notify);
     sendMessage(`Appending the class`);
-    toggleBionic(false);
+    finaliseInit();
 }
 
 /**
@@ -224,7 +238,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 }
 
 const checkInit = (): boolean => {
-    return document.querySelector('body')?.classList.contains(CLASS_ACTIVE) || false;
+    return document.querySelector('body')?.classList.contains(BreClasses.CLASS_INIT) || false;
 }
 
 /**
@@ -245,7 +259,7 @@ const autoGrabParagraphs = (): void => {
         convertPageText(paragraphs);
     } else {
         // It's more efficient to simply toggle a class which prevents <b> elements from rendering bold once initialised!
-        toggleBionic(isInit);
+        toggleBionic();
     }
 }
 

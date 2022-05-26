@@ -30,8 +30,13 @@ export declare interface StorageObject {
 // Content script specific
 
 export const CS_LOG_PREFIX = "[BRE: c-s via background]";
-export const CLASS_ACTIVE = "bre-active";
-export const CLASS_INACTIVE = "bre-inactive";
+
+export enum BreClasses {
+    CLASS_INIT = "bre-init",
+    CLASS_ACTIVE = "bre-active",
+    CLASS_CUSTOM = "bre-custom",
+    CLASS_INACTIVE = "bre-inactive"
+}
 
 export const DELIMITERS = {
     HYPHEN: "-",
