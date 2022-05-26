@@ -1,25 +1,4 @@
-const DEBUG = true;
-const VERBOSE = false;
-const DEFAULT_LOG_PREFIX = "[BRE: background]";
-const STORAGE_PREFIX = 'breStatus-';
-
-enum ITypesBG {
-    log,
-    action,
-    notify,
-    store,
-    store_create,
-    store_read
-}
-
-enum StorageKind {
-    is_active = "isActive"
-}
-
-declare interface StorageObject {
-    isActive?: boolean;
-    exists?: boolean;
-}
+import { DEBUG, DEFAULT_LOG_PREFIX, MessageTypes, StorageKind, StorageObject, STORAGE_PREFIX, VERBOSE } from "./interfaces";
 
 const storageSet = (value: boolean | string, kind: StorageKind) => {
     let STORAGE_OBJ: StorageObject;
@@ -32,7 +11,6 @@ const storageSet = (value: boolean | string, kind: StorageKind) => {
             break;
     }
     chrome.storage.local.set(STORAGE_OBJ, () => {
-        // smartLog(`Set key '${key}' and value '${value}'`);
         smartLog(`Set storage object: ${STORAGE_OBJ}`);
     });
 }
@@ -166,23 +144,23 @@ chrome.runtime.onMessage.addListener(
         }
 
         switch (request.type) {
-            case ITypesBG.action:
+            case MessageTypes.action:
                 // trigger a function or something
                 break;
-            case ITypesBG.log:
+            case MessageTypes.log:
                 smartLog(request.message, request.prefix);
                 break;
-            case ITypesBG.notify:
+            case MessageTypes.notify:
                 sendNotification(request.message);
                 break;
-            case ITypesBG.store_create:
+            case MessageTypes.store_create:
                 if (request.details.value) {
                     if (request.details.action == 'setPageInit') {
                         storageSet(request.details.value, StorageKind.is_active);
                     }
                 }
                 break;
-            case ITypesBG.store_read:
+            case MessageTypes.store_read:
                 smartLog('Reading from the local store for the extension. Details:');
                 console.log(request.details);
                 smartLog('Action:');

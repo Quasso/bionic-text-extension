@@ -1,27 +1,9 @@
-const CS_LOG_PREFIX = "[BRE: c-s via background]";
-const CLASS_INIT = 'bre-initialised';
-const CLASS_INACTIVE = 'bre-inactive';
+import { CLASS_INACTIVE, CLASS_INIT, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE } from './interfaces';
 
-export const DELIMITERS = {
-    HYPHEN: "-",
-    DBL_HYPHEN_A: "--",
-    DBL_HYPHEN_B: "—",
-    SPACE: " "
-};
-
+// Initial values
 let originalParagraphValues: Array<string> = [];
 let bionicParagraphValues: Array<string> = [];
-
 let wordIndex: number = 0, paragraphIndex: number = 0;
-
-enum ITypesCS {
-    log,
-    action,
-    notify,
-    store,
-    store_create,
-    store_read
-};
 
 /**
  *
@@ -29,11 +11,11 @@ enum ITypesCS {
  *
  * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
  * @param message [string] the message to log (if any)
- * @param type [ITypesCS] the type of event we're sending
+ * @param type [MessageTypes] the type of event we're sending
  * @param details [object] no specific typings exist for this yet but it's an object with keys
  */
-const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
-    !type ? type = ITypesCS.log : console.log('Nothing to see here');
+const sendMessage = (message: string, type?: MessageTypes, details?: any): void => {
+    !type ? type = MessageTypes.log : console.log('Nothing to see here');
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
 }
 
@@ -44,10 +26,10 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
  * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
  * and also wait to hear back from it. (Note: performance of response erratic & not clear why)
  * @param message [string] the message to log (if any)
- * @param type [ITypesCS] the type of event we're sending
+ * @param type [MessageTypes] the type of event we're sending
  * @param details [object] no specific typings exist for this yet but it's an object with keys
  */
-const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<boolean | undefined> => {
+const sendMessageAndAwaitResponse = (message: string, type?: MessageTypes, details?: any): Promise<boolean | undefined> => {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
             const exists: boolean = response.exists;
@@ -143,7 +125,7 @@ const bionicWord = (word: string): string => {
  * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing const lity =  for edge cases=>)
  */
 const parseString = (str: string): string => {
-    // sendMessage(`Parsing word ${word}`);
+    if (VERBOSE) { sendMessage(`Parsing str ${str}`); }
     const advancedParse = advancedParseString(str);
     if (!advancedParse) {
         return bionicWord(str);
@@ -185,7 +167,7 @@ const parseBionic = (paragraph: Element) => {
 }
 
 const toggleActiveClass = (isActive: boolean) => {
-    sendMessage(`Toggling bionic state from '${isActive}' to '${!isActive}'...`, ITypesCS.notify);
+    sendMessage(`Toggling bionic state from '${isActive}' to '${!isActive}'...`, MessageTypes.notify);
     switch (isActive) {
         case true:
             document.querySelector('body')?.classList.remove(CLASS_INIT);
@@ -210,12 +192,12 @@ const initialised = () => {
     // for some reason are missing the populated obj they should return
     // so I have removed the reliance on receiving a response for now in
     // favour of the class-based approach
-    sendMessage('Parsed all content on this page', ITypesCS.store_create,
+    sendMessage('Parsed all content on this page', MessageTypes.store_create,
         {
             value: true,
             action: 'setPageInit',
         });
-    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
+    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, MessageTypes.notify);
     sendMessage(`Appending the class`);
     toggleActiveClass(false);
 }
