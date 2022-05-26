@@ -206,15 +206,6 @@ const finaliseInit = () => {
 }
 
 const initialised = () => {
-    // This works fine for actually setting a value, however return comms
-    // for some reason are missing the populated obj they should return
-    // so I have removed the reliance on receiving a response for now in
-    // favour of the class-based approach
-    sendMessage('Parsed all content on this page', MessageTypes.store_create,
-        {
-            value: true,
-            action: Actions.set_page_init,
-        });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, MessageTypes.notify);
     sendMessage(`Appending the class`);
     finaliseInit();
