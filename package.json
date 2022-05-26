@@ -1,6 +1,6 @@
 {
   "name": "bionic-reader-extension",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A new concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
   "main": "index.js",
   "author": "Quasso <https://github.com/Quasso>",
