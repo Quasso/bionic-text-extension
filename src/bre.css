@@ -1,10 +1,9 @@
-.bre-initialised b {
+.bre-active b {
     font-weight: 600 !important;
 }
 
-
-.bre-initialised .bre-override {
-    font-family: Helvetica !important;
+.bre-active.bre-custom * p {
+    font-family: Helvetica, Arial, sans-serif !important;
     letter-spacing: 0.6px !important;
     line-height: 1.55em !important;
     font-weight: 400 !important;

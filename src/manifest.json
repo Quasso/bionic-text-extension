@@ -1,6 +1,6 @@
 {
     "name": "Bionic Reader Extension",
-    "description": "A concept called Bionic Reading aims to increase readability of text for humans. This extension converts text on-the-fly into Bionic Text.",
+    "description": "A concept called Bionic Reading aims to increase readability of text for humans. This extension auto-converts text into Bionic.",
     "version": "1.0.0",
     "manifest_version": 3,
     "permissions": [
@@ -14,6 +14,9 @@
             "default_title": "Bionic Reader",
             "default_popup": "popup.html",
             "icons": {
+                "16": "./assets/compiled/icon-16.png",
+                "32": "./assets/compiled/icon-32.png",
+                "48": "./assets/compiled/icon-48.png",
                 "128": "./assets/compiled/icon-128.png"
             }
         }

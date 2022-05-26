@@ -42,3 +42,13 @@ chrome://extensions/
 Next, toggle "Developer mode" in the top right hand corner.
 
 Finally, click the "Load unpacked" button on the left hand side of the page. Navigate to your copy of this repository, specifically the `./dist` dir.
+
+## Official Published Extension
+
+Coming very soon! It has been submitted for approval as of 26 May. Once it's live I will update the repo with a link to the install page :)
+
+## With <3 from Alex
+
+Thanks for checking this out. I did hack this together quickly on a Saturday for the first working version but have tidied things up, experimented with ideas and refactored/enhanced things a lot since then prior to publishing v1.0.0. If you like it, I'm delighted!
+
+Please feel free to fork this repository and strip it back to create your own Chrome extensions if you think it a worthy baseline! The webpack config will need modifying to support new use cases but this can be improved. I just made it work with this quite practically so far.

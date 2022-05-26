@@ -1,27 +1,9 @@
-const CS_LOG_PREFIX = "[BRE: c-s via background]";
-const CLASS_INIT = 'bre-initialised';
-const CLASS_INACTIVE = 'bre-inactive';
+import { Actions, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE, BreClasses } from './interfaces';
 
-export const DELIMITERS = {
-    HYPHEN: "-",
-    DBL_HYPHEN_A: "--",
-    DBL_HYPHEN_B: "—",
-    SPACE: " "
-};
-
+// Initial values
 let originalParagraphValues: Array<string> = [];
 let bionicParagraphValues: Array<string> = [];
-
 let wordIndex: number = 0, paragraphIndex: number = 0;
-
-enum ITypesCS {
-    log,
-    action,
-    notify,
-    store,
-    store_create,
-    store_read
-};
 
 /**
  *
@@ -29,11 +11,11 @@ enum ITypesCS {
  *
  * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
  * @param message [string] the message to log (if any)
- * @param type [ITypesCS] the type of event we're sending
+ * @param type [MessageTypes] the type of event we're sending
  * @param details [object] no specific typings exist for this yet but it's an object with keys
  */
-const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
-    !type ? type = ITypesCS.log : console.log('Nothing to see here');
+const sendMessage = (message: string, type?: MessageTypes, details?: any): void => {
+    !type ? type = MessageTypes.log : console.log('Nothing to see here');
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
 }
 
@@ -44,10 +26,10 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
  * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
  * and also wait to hear back from it. (Note: performance of response erratic & not clear why)
  * @param message [string] the message to log (if any)
- * @param type [ITypesCS] the type of event we're sending
+ * @param type [MessageTypes] the type of event we're sending
  * @param details [object] no specific typings exist for this yet but it's an object with keys
  */
-const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<boolean | undefined> => {
+const sendMessageAndAwaitResponse = (message: string, type?: MessageTypes, details?: any): Promise<boolean | undefined> => {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
             const exists: boolean = response.exists;
@@ -143,7 +125,7 @@ const bionicWord = (word: string): string => {
  * @returns [string] the fully parsed HTML to correctly show the bionic text (inc. special parsing const lity =  for edge cases=>)
  */
 const parseString = (str: string): string => {
-    // sendMessage(`Parsing word ${word}`);
+    if (VERBOSE) { sendMessage(`Parsing str ${str}`); }
     const advancedParse = advancedParseString(str);
     if (!advancedParse) {
         return bionicWord(str);
@@ -184,25 +166,43 @@ const parseBionic = (paragraph: Element) => {
     paragraphIndex++;
 }
 
-const toggleActiveClass = (isActive: boolean) => {
-    sendMessage(`Toggling bionic state from '${isActive}' to '${!isActive}'...`, ITypesCS.notify);
-    switch (isActive) {
-        case true:
-            document.querySelector('body')?.classList.remove(CLASS_INIT);
-            document.querySelector('body')?.classList.add(CLASS_INACTIVE);
-            break;
-        case false:
-            document.querySelector('body')?.classList.add(CLASS_INIT);
-            document.querySelector('body')?.classList.remove(CLASS_INACTIVE);
-            break;
-    }
-
+/**
+ *
+ * Toggle Bionic
+ *
+ * @description based on the extension's current state, toggles a class
+ * on the page body which effectively appears to revert the bionic
+ * parsing, where in reality it only modifies the DOM on first
+ * load/parse
+ * @param isActive [boolean] whether or not bionic text is active
+ */
+const toggleBionic = (): void => {
+    const bodyClasses = document.querySelector('body')?.classList;
+    bodyClasses?.forEach((className: string) => {
+        switch (className) {
+            case BreClasses.CLASS_ACTIVE:
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_CUSTOM);
+                sendMessage(`Bionic Text is enabled and has been set to custom style this page...`, MessageTypes.notify);
+                break;
+            case BreClasses.CLASS_CUSTOM:
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_ACTIVE);
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_CUSTOM);
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_INACTIVE);
+                sendMessage(`Bionic Text has been disabled on this page...`, MessageTypes.notify);
+                break;
+            case BreClasses.CLASS_INACTIVE:
+                document.querySelector('body')?.classList.remove(BreClasses.CLASS_INACTIVE);
+                document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
+                sendMessage(`Bionic Text has been enabled on this page...`, MessageTypes.notify);
+                break;
+        }
+    });
 }
 
-const toggleBionic = (isActive: boolean) => {
-    // const isActive = document.querySelector('body')?.classList.contains(CLASS_INIT);
-
-    toggleActiveClass(isActive as boolean);
+const finaliseInit = () => {
+    document.querySelector('body')?.classList.add(BreClasses.CLASS_INIT);
+    document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
+    sendMessage('Fully initialised & active.');
 }
 
 const initialised = () => {
@@ -210,14 +210,14 @@ const initialised = () => {
     // for some reason are missing the populated obj they should return
     // so I have removed the reliance on receiving a response for now in
     // favour of the class-based approach
-    sendMessage('Parsed all content on this page', ITypesCS.store_create,
+    sendMessage('Parsed all content on this page', MessageTypes.store_create,
         {
             value: true,
-            action: 'setPageInit',
+            action: Actions.set_page_init,
         });
-    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
+    sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, MessageTypes.notify);
     sendMessage(`Appending the class`);
-    toggleActiveClass(false);
+    finaliseInit();
 }
 
 /**
@@ -238,7 +238,7 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 }
 
 const checkInit = (): boolean => {
-    return document.querySelector('body')?.classList.contains(CLASS_INIT) || false;
+    return document.querySelector('body')?.classList.contains(BreClasses.CLASS_INIT) || false;
 }
 
 /**
@@ -249,7 +249,7 @@ const checkInit = (): boolean => {
  * so that it can be parsed/formatted!
  *
  */
-const autoGrabParagraphs = () => {
+const autoGrabParagraphs = (): void => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
     const isInit = checkInit();
@@ -258,7 +258,8 @@ const autoGrabParagraphs = () => {
     if (!isInit) {
         convertPageText(paragraphs);
     } else {
-        toggleBionic(isInit);
+        // It's more efficient to simply toggle a class which prevents <b> elements from rendering bold once initialised!
+        toggleBionic();
     }
 }
 
@@ -269,8 +270,8 @@ const autoGrabParagraphs = () => {
  * @description: embeds into the active page to perform DOM interactions, allowing us to modify article text etc
  *
  */
-const initContentScript = () => {
-    sendMessage("Content script initialised!");
+const initContentScript = (): void => {
+    sendMessage("Content script initialising...");
     autoGrabParagraphs();
 }
 

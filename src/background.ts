@@ -1,26 +1,15 @@
-const DEBUG = true;
-const VERBOSE = false;
-const DEFAULT_LOG_PREFIX = "[BRE: background]";
-const STORAGE_PREFIX = 'breStatus-';
+import { Actions, DEBUG, DEFAULT_LOG_PREFIX, MessageTypes, StorageKind, StorageObject, STORAGE_PREFIX, VERBOSE } from "./interfaces";
 
-enum ITypesBG {
-    log,
-    action,
-    notify,
-    store,
-    store_create,
-    store_read
-}
-
-enum StorageKind {
-    is_active = "isActive"
-}
-
-declare interface StorageObject {
-    isActive?: boolean;
-    exists?: boolean;
-}
-
+/**
+ *
+ * Storage Set
+ *
+ * @description wrapper around the native API chrome.storage.local (not sync!) to
+ * store an object with a given key
+ * @param value [boolean | string] the value to assign inside the storage object
+ * @param kind [StorageKind enum] determines the storage object structure and
+ * how the value is assigned to it
+ */
 const storageSet = (value: boolean | string, kind: StorageKind) => {
     let STORAGE_OBJ: StorageObject;
 
@@ -32,11 +21,19 @@ const storageSet = (value: boolean | string, kind: StorageKind) => {
             break;
     }
     chrome.storage.local.set(STORAGE_OBJ, () => {
-        // smartLog(`Set key '${key}' and value '${value}'`);
         smartLog(`Set storage object: ${STORAGE_OBJ}`);
     });
 }
 
+/**
+ *
+ * Storage Get
+ *
+ * @description wrapper around the native API chrome.storage.local (not sync!) to
+ * retrieve a stored object with a given key
+ * @param key [string] the key to search the storage for in order to retrieve a StorageObject
+ * @returns [Promise<StorageObject>] a promise with a valid StorageObject for the caller to handle
+ */
 const storageGet = (key: string): Promise<StorageObject> => {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([`${key}`], (value: StorageObject) => {
@@ -119,16 +116,29 @@ chrome.action.onClicked.addListener((tab) => {
     }
 });
 
+/**
+ *
+ * Sanitise a URL (not currently in use)
+ *
+ * @param url [string] a url
+ * @returns [string] a formatted string
+ */
 const formatKey = (url: string): string => {
     const cleanUrl = url.replace(/[^a-zA-Z0-9-]/g, '');
     return STORAGE_PREFIX + cleanUrl;
 }
 
-
+/**
+ *
+ * Handle Action
+ *
+ * @param action [string] 
+ * @returns 
+ */
 const handleAction = (action: string): Promise<StorageObject> => {
     return new Promise((resolve, reject) => {
         switch (action) {
-            case 'checkPageInit':
+            case Actions.check_init:
                 const key = StorageKind.is_active;
                 storageGet(key)
                     .then((value) => {
@@ -152,7 +162,6 @@ const handleAction = (action: string): Promise<StorageObject> => {
     });
 }
 
-
 /**
  *
  * onMessage handler
@@ -166,27 +175,23 @@ chrome.runtime.onMessage.addListener(
         }
 
         switch (request.type) {
-            case ITypesBG.action:
-                // trigger a function or something
-                break;
-            case ITypesBG.log:
+            case MessageTypes.log:
                 smartLog(request.message, request.prefix);
                 break;
-            case ITypesBG.notify:
+            case MessageTypes.notify:
                 sendNotification(request.message);
                 break;
-            case ITypesBG.store_create:
+            case MessageTypes.store_create:
                 if (request.details.value) {
-                    if (request.details.action == 'setPageInit') {
+                    if (request.details.action == Actions.set_page_init) {
                         storageSet(request.details.value, StorageKind.is_active);
                     }
                 }
                 break;
-            case ITypesBG.store_read:
-                smartLog('Reading from the local store for the extension. Details:');
-                console.log(request.details);
-                smartLog('Action:');
-                console.log(request.details.action);
+            case MessageTypes.store_read:
+                smartLog('Reading from the local store for the extension. Details:', request.prefix, true);
+                console.log(request.details, request.prefix, true);
+
                 handleAction(request.details.action).then((value: StorageObject) => {
                     console.log(value);
                     console.log(sendResponse);
