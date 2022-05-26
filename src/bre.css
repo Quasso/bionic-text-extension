@@ -3,7 +3,7 @@
 }
 
 .bre-active .bre-override {
-    font-family: Helvetica !important;
+    font-family: Helvetica, Arial, sans-serif !important;
     letter-spacing: 0.6px !important;
     line-height: 1.55em !important;
     font-weight: 400 !important;
