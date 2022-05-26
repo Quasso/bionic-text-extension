@@ -1,14 +1,6 @@
 const CS_LOG_PREFIX = "[BRE: c-s via background]";
 const CLASS_INIT = 'bre-initialised';
-declare interface BionicReaderStatuses {
-    active: boolean;
-    init: boolean;
-}
-
-let STATUS: BionicReaderStatuses = {
-    active: false,
-    init: false
-};
+const CLASS_INACTIVE = 'bre-inactive';
 
 export const DELIMITERS = {
     HYPHEN: "-",
@@ -35,15 +27,26 @@ enum ITypesCS {
  *
  * Send Message
  *
- * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extensio=>n
+ * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
  * @param message [string] the message to log (if any)
  * @param type [ITypesCS] the type of event we're sending
+ * @param details [object] no specific typings exist for this yet but it's an object with keys
  */
 const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
     !type ? type = ITypesCS.log : console.log('Nothing to see here');
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
 }
 
+/**
+ *
+ * Send Message and Await Response
+ *
+ * @description helper const to =  communicate with background.js primarily. Send a message to another part of the extension
+ * and also wait to hear back from it. (Note: performance of response erratic & not clear why)
+ * @param message [string] the message to log (if any)
+ * @param type [ITypesCS] the type of event we're sending
+ * @param details [object] no specific typings exist for this yet but it's an object with keys
+ */
 const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<boolean | undefined> => {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
@@ -181,23 +184,42 @@ const parseBionic = (paragraph: Element) => {
     paragraphIndex++;
 }
 
-const toggleBionic = () => {
-    sendMessage(`Toggling bionic state from '${STATUS.active}'...`, ITypesCS.notify);
+const toggleActiveClass = (isActive: boolean) => {
+    sendMessage(`Toggling bionic state from '${isActive}' to '${!isActive}'...`, ITypesCS.notify);
+    switch (isActive) {
+        case true:
+            document.querySelector('body')?.classList.remove(CLASS_INIT);
+            document.querySelector('body')?.classList.add(CLASS_INACTIVE);
+            break;
+        case false:
+            document.querySelector('body')?.classList.add(CLASS_INIT);
+            document.querySelector('body')?.classList.remove(CLASS_INACTIVE);
+            break;
+    }
+
+}
+
+const toggleBionic = (isActive: boolean) => {
+    // const isActive = document.querySelector('body')?.classList.contains(CLASS_INIT);
+
+    toggleActiveClass(isActive as boolean);
 }
 
 const initialised = () => {
-    STATUS.init = true;
     // This works fine for actually setting a value, however return comms
-    // for some reason are missing the populated they should return
+    // for some reason are missing the populated obj they should return
+    // so I have removed the reliance on receiving a response for now in
+    // favour of the class-based approach
     sendMessage('Parsed all content on this page', ITypesCS.store_create,
         {
             value: true,
             action: 'setPageInit',
         });
     sendMessage(`Automatically processed ${paragraphIndex} paragraphs and ${wordIndex} words!`, ITypesCS.notify);
-    sendMessage(`Appending the class`)
-    document.querySelector('body')?.classList.add(CLASS_INIT);
+    sendMessage(`Appending the class`);
+    toggleActiveClass(false);
 }
+
 /**
  *
  * Convert Page Text
@@ -230,24 +252,14 @@ const checkInit = (): boolean => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
-    const isActive = checkInit();
-    sendMessage(`Is loaded? ${isActive}`);
+    const isInit = checkInit();
+    sendMessage(`Is loaded? ${isInit}`);
 
-    if (!isActive) {
+    if (!isInit) {
         convertPageText(paragraphs);
     } else {
-        toggleBionic();
+        toggleBionic(isInit);
     }
-
-    // sendMessageAndAwaitResponse(
-    //     `Check if already loaded on this page`,
-    //     ITypesCS.store_read,
-    //     {
-    //         action: 'checkPageInit',
-    //         key: 'isActive'
-    //     })
-    //     .then((isActive) => {
-    //     });
 }
 
 /**
