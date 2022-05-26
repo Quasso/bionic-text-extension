@@ -84,7 +84,7 @@ const advancedParseString = (word: string): boolean | string => {
 }
 
 const makeBold = (word: string): string => {
-    return `<b>${word}</b>`
+    return `<b class="bre-b">${word}</b>`
 }
 
 /**

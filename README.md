@@ -1,5 +1,7 @@
 # Bionic Reader Extension
 
+![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Reader Extension: Cover Image")
+
 ## Description
 
 A new concept called Bionic Reading aims to increase readability of text for humans.
