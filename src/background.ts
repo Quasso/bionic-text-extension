@@ -49,7 +49,7 @@ const storageGet = (key: string): Promise<StorageObject> => {
                 resolve(value);
             } else {
                 smartLog(`No matching value for the key ${key}`);
-                resolve({ exists: false });
+                resolve({ isActive: false, exists: false });
             }
         });
     });

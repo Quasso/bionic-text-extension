@@ -44,26 +44,27 @@ const sendMessage = (message: string, type?: ITypesCS, details?: any): void => {
     chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details });
 }
 
-const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): any => {
-    // return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, function (response) {
-        const exists = response.exists;
-        sendMessage(`Response block triggered! With resp: ${response}`); //recursive baby!
-        sendMessage(`Response was: ${response}`);
-        if (response == undefined) {
-            sendMessage("Response was undefined, need to sort this out...");
-            // resolve(undefined);
-        } else if (!exists) {
-            sendMessage("Response was false, meaning the key did not have a value.");
-            // resolve(false);
-        } else if (exists) {
-            console.log(response);
-            sendMessage(`Response was ${response}`);
-            // resolve(response);
-        }
-        return response;
+const sendMessageAndAwaitResponse = (message: string, type?: ITypesCS, details?: any): Promise<boolean | undefined> => {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ message, prefix: CS_LOG_PREFIX, type, details }, (response) => {
+            const exists: boolean = response.exists;
+            sendMessage(`Response block triggered! With resp: ${response}`); //recursive baby!
+            sendMessage(`Response was: ${response}`);
+            if (response == undefined) {
+                sendMessage("Response was undefined, need to sort this out...");
+                reject(undefined);
+            } else if (!exists) {
+                sendMessage("Response was false, meaning the key did not have a value.");
+                sendMessage(`Response was ${response}`);
+                resolve(exists);
+            } else if (exists) {
+                console.log(response);
+                sendMessage(`Response was ${response}`);
+                resolve(exists);
+            }
+            return response;
+        });
     });
-    // });
 }
 
 /**
@@ -219,29 +220,24 @@ const convertPageText = (paragraphs: NodeListOf<Element>) => {
 const autoGrabParagraphs = () => {
     const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
     sendMessage(`Auto-grab <p> elements running. There are ${paragraphs.length} paragraphs to parse.`);
-    // .then((value) => {
-    //     sendMessage(`Is loaded? ${value.exists}`);
-    //     sendMessage(`Is init? ${STATUS.init}`);
-    //     if (!STATUS.init && !value.exists) {
-    //         convertPageText(paragraphs);
-    //     } else {
-    //         toggleBionic();
-    //     }
-    // });
-    const value = sendMessageAndAwaitResponse(
+
+    sendMessageAndAwaitResponse(
         `Check if already loaded on this page`,
         ITypesCS.store_read,
         {
             action: 'checkPageInit',
             key: 'isActive'
+        })
+        .then((isActive) => {
+            sendMessage(`Is loaded? ${isActive}`);
+
+            if (!isActive) {
+                convertPageText(paragraphs);
+            } else {
+                toggleBionic();
+            }
         });
-    sendMessage(`Is loaded? ${value.exists}`);
-    sendMessage(`Is init? ${STATUS.init}`);
-    if (!STATUS.init || !value.exists) {
-        convertPageText(paragraphs);
-    } else {
-        toggleBionic();
-    }
+
 }
 
 /**
