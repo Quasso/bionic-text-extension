@@ -1,16 +1,16 @@
-# Bionic Text Extension
+# Bionic Text Converter
 
 ## UI
 
-![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Text Extension: Cover Image")
+![BRE Cover Image](assets/bionic-text-converter.png "Bionic Text Converter: Cover Image")
 
 ###  Example A in action (MIT Technology Review)
 
-![MIT Technology Review](assets/Extension_MIT.png "Bionic Text Extension: MIT Technology Review")
+![MIT Technology Review](assets/Extension_MIT.png "Bionic Text Converter: MIT Technology Review")
 
 ###  Example B in action (Wikipedia)
 
-![Wikipedia](assets/Extension_Wikipedia.png "Bionic Text Extension: Wikipedia")
+![Wikipedia](assets/Extension_Wikipedia.png "Bionic Text Converter: Wikipedia")
 
 ## Description
 
