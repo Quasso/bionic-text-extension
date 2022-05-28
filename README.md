@@ -33,10 +33,26 @@ git clone https://github.com/Quasso/bionic-reader-extension.git;
 cd bionic-reader-extension
 ```
 
-Open this project in your favourite editor, then run:
+The following two commands assume that you have a valid/supported version of Node.js and `npm` installed in your current shell session.
+
+If you do not already have a version manager for Node installed, I recommend: https://github.com/tj/n
+
+If you do already have `n` installed, simply run:
 
 ```zsh
-code .; npm install; npm run build
+n latest
+```
+
+If that fails (due to some major change, for example):
+
+```zsh
+n install 18.2.0 # last known working version in docs
+```
+
+Open this project in your favourite editor via terminal (`code .`), then run:
+
+```zsh
+npm install; npm run build
 ```
 
 From your terminal (at the root of this project!).

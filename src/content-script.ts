@@ -1,4 +1,4 @@
-import { Actions, CS_LOG_PREFIX, DELIMITERS, MessageTypes, VERBOSE, BreClasses } from './interfaces';
+import { Actions, CS_LOG_PREFIX, Delimiters, MessageTypes, VERBOSE, BreClasses } from './interfaces';
 
 // Initial values
 let originalParagraphValues: Array<string> = [];
@@ -61,30 +61,30 @@ const sendMessageAndAwaitResponse = (message: string, type?: MessageTypes, detai
  */
 const advancedParseString = (word: string): boolean | string => {
     // Two different characters tend to cover the double hyphenation online
-    const containsDoubleHyphenA = word.indexOf(DELIMITERS.DBL_HYPHEN_A);
-    const containsDoubleHyphenB = word.indexOf(DELIMITERS.DBL_HYPHEN_B);
+    const containsDoubleHyphenA = word.indexOf(Delimiters.DBL_HYPHEN_A);
+    const containsDoubleHyphenB = word.indexOf(Delimiters.DBL_HYPHEN_B);
     // Just plain ol' hyphens baby
-    const containsHyphen = word.indexOf(DELIMITERS.HYPHEN);
+    const containsHyphen = word.indexOf(Delimiters.HYPHEN);
 
     if (containsDoubleHyphenA > 0) {
         sendMessage(`This word contains a standard double hyphen ${word}!`);
-        let words = word.split(DELIMITERS.DBL_HYPHEN_A);
-        return bionicWord(words[0]) + DELIMITERS.DBL_HYPHEN_A + bionicWord(words[1]);
+        let words = word.split(Delimiters.DBL_HYPHEN_A);
+        return bionicWord(words[0]) + Delimiters.DBL_HYPHEN_A + bionicWord(words[1]);
     } else if (containsDoubleHyphenB > 0) {
         sendMessage(`This word contains a conjoined double hyphen ${word}!`);
-        let words = word.split(DELIMITERS.DBL_HYPHEN_B);
-        return bionicWord(words[0]) + DELIMITERS.DBL_HYPHEN_B + bionicWord(words[1]);
+        let words = word.split(Delimiters.DBL_HYPHEN_B);
+        return bionicWord(words[0]) + Delimiters.DBL_HYPHEN_B + bionicWord(words[1]);
     } else if (containsHyphen > 0) {
         sendMessage(`This word contains one hyphen ${word}!`);
-        let words = word.split(DELIMITERS.HYPHEN);
-        return bionicWord(words[0]) + DELIMITERS.HYPHEN + bionicWord(words[1]);
+        let words = word.split(Delimiters.HYPHEN);
+        return bionicWord(words[0]) + Delimiters.HYPHEN + bionicWord(words[1]);
     } else {
         return false;
     }
 }
 
 const makeBold = (word: string): string => {
-    return `<b class="bre-b">${word}</b>`
+    return `<span class="${BreClasses.B_CLASS}">${word}</span>`
 }
 
 /**
@@ -177,22 +177,23 @@ const parseBionic = (paragraph: Element) => {
  * @param isActive [boolean] whether or not bionic text is active
  */
 const toggleBionic = (): void => {
-    const bodyClasses = document.querySelector('body')?.classList;
+    const body = document.querySelector('body');
+    const bodyClasses = body?.classList;
     bodyClasses?.forEach((className: string) => {
         switch (className) {
             case BreClasses.CLASS_ACTIVE:
-                document.querySelector('body')?.classList.add(BreClasses.CLASS_CUSTOM);
+                body?.classList.add(BreClasses.CLASS_CUSTOM);
                 sendMessage(`Bionic Text is enabled and has been set to custom style this page...`, MessageTypes.notify);
                 break;
             case BreClasses.CLASS_CUSTOM:
-                document.querySelector('body')?.classList.remove(BreClasses.CLASS_ACTIVE);
-                document.querySelector('body')?.classList.remove(BreClasses.CLASS_CUSTOM);
-                document.querySelector('body')?.classList.add(BreClasses.CLASS_INACTIVE);
+                body?.classList.remove(BreClasses.CLASS_ACTIVE);
+                body?.classList.remove(BreClasses.CLASS_CUSTOM);
+                body?.classList.add(BreClasses.CLASS_INACTIVE);
                 sendMessage(`Bionic Text has been disabled on this page...`, MessageTypes.notify);
                 break;
             case BreClasses.CLASS_INACTIVE:
-                document.querySelector('body')?.classList.remove(BreClasses.CLASS_INACTIVE);
-                document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
+                body?.classList.remove(BreClasses.CLASS_INACTIVE);
+                body?.classList.add(BreClasses.CLASS_ACTIVE);
                 sendMessage(`Bionic Text has been enabled on this page...`, MessageTypes.notify);
                 break;
         }
@@ -203,6 +204,16 @@ const finaliseInit = () => {
     document.querySelector('body')?.classList.add(BreClasses.CLASS_INIT);
     document.querySelector('body')?.classList.add(BreClasses.CLASS_ACTIVE);
     sendMessage('Fully initialised & active.');
+    // setTimeout(() => {
+    //     const boldies = document.querySelectorAll(`.${BreClasses.B_CLASS}`);
+    //     if (boldies.length <= 0) {
+    //         // boldies detected!
+    //     } else {
+    //         // no boldies detected! Perhaps the page wiped updates...
+    //         const paragraphs: NodeListOf<Element> = document.querySelectorAll('body p');
+    //         convertPageText(paragraphs);
+    //     }
+    // }, 250);
 }
 
 const initialised = () => {
