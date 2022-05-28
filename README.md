@@ -87,4 +87,4 @@ I did this purely for fun, and to try out the new V3 Manifests in Chrome extensi
 
 For that reason, as an alternative which removes all the styling, I would suggest checking out the "Bionic Reading" extension too.
 
-This extension is not developed by Bionic Reading 
+This extension is not developed by Bionic Reading. It is merely an extension built thanks to that concept which functions different to the original extension.
