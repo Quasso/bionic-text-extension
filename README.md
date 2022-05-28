@@ -1,16 +1,16 @@
-# Bionic Text Extension
+# Bionic Text Converter
 
 ## UI
 
-![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Text Extension: Cover Image")
+![BRE Cover Image](assets/bionic-text-converter.png "Bionic Text Converter: Cover Image")
 
 ###  Example A in action (MIT Technology Review)
 
-![MIT Technology Review](assets/Extension_MIT.png "Bionic Text Extension: MIT Technology Review")
+![MIT Technology Review](assets/Extension_MIT.png "Bionic Text Converter: MIT Technology Review")
 
 ###  Example B in action (Wikipedia)
 
-![Wikipedia](assets/Extension_Wikipedia.png "Bionic Text Extension: Wikipedia")
+![Wikipedia](assets/Extension_Wikipedia.png "Bionic Text Converter: Wikipedia")
 
 ## Description
 
@@ -87,4 +87,4 @@ I did this purely for fun, and to try out the new V3 Manifests in Chrome extensi
 
 For that reason, as an alternative which removes all the styling, I would suggest checking out the "Bionic Reading" extension too.
 
-This extension is not developed by Bionic Reading 
+This extension is not developed by Bionic Reading. It is merely an extension built thanks to that concept which functions different to the original extension.
