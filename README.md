@@ -1,20 +1,20 @@
-# Bionic Converter Extension
+# Bionic Text Extension
 
 ## UI
 
-![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Converter Extension: Cover Image")
+![BRE Cover Image](assets/bre-cover-image-chrome-webstore.png "Bionic Text Extension: Cover Image")
 
 ###  Example A in action (MIT Technology Review)
 
-![MIT Technology Review](assets/Extension_MIT.png "Bionic Converter Extension: MIT Technology Review")
+![MIT Technology Review](assets/Extension_MIT.png "Bionic Text Extension: MIT Technology Review")
 
 ###  Example B in action (Wikipedia)
 
-![Wikipedia](assets/Extension_Wikipedia.png "Bionic Converter Extension: Wikipedia")
+![Wikipedia](assets/Extension_Wikipedia.png "Bionic Text Extension: Wikipedia")
 
 ## Description
 
-A new concept called Bionic Reading aims to increase readability of text for humans.
+A new concept called "Bionic Reading" aims to increase readability of text for humans.
 
 This extension converts text on-the-fly into Bionic Text. The goal of this extension is partly to measure and adapt the techniques around this, probably on an individual basis, because the original author of this plugin believes that the value of this technique is highly dependent upon a number of factors which must increase legibility of text.
 
@@ -29,8 +29,8 @@ For now, if you contact me directly or file a [sensible] issue on the repo, you 
 Clone this repo:
 
 ```zsh
-git clone https://github.com/Quasso/bionic-Converter-extension.git;
-cd bionic-Converter-extension
+git clone https://github.com/Quasso/bionic-Text-extension.git;
+cd bionic-Text-extension
 ```
 
 The following two commands assume that you have a valid/supported version of Node.js and `npm` installed in your current shell session.
