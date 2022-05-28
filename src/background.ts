@@ -41,7 +41,7 @@ const sendNotification = (message: string) => {
  * Detect once the extension has loaded and log for dev purposes
  *
  */
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
     smartLog('Initialised successfully.');
 });
 
@@ -63,25 +63,13 @@ chrome.action.onClicked.addListener((tab) => {
 
 /**
  *
- * Sanitise a URL (not currently in use)
- *
- * @param url [string] a url
- * @returns [string] a formatted string
- */
-const formatKey = (url: string): string => {
-    const cleanUrl = url.replace(/[^a-zA-Z0-9-]/g, '');
-    return STORAGE_PREFIX + cleanUrl;
-}
-
-/**
- *
  * onMessage handler
  *
  * @description for bi-directional communication from the contentScript once running
  */
 chrome.runtime.onMessage.addListener(
-    (request, sender, sendResponse) => {
-        if (sender.tab) {
+    (request, sender) => {
+        if (sender['tab'] && sender['tab']['url']) {
             smartLog(`Received message from tab with address: ${sender.tab.url}`, request.prefix, true);
         }
 

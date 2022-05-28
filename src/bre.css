@@ -1,4 +1,4 @@
-.bre-active b.bre-b {
+.bre-active span.bre-b {
     font-weight: 600 !important;
 }
 
@@ -10,6 +10,6 @@
     font-size: 1.1em !important;
 }
 
-.bre-inactive * b.bre-b {
+.bre-inactive * span.bre-b {
     font-weight: 400 !important;
 }

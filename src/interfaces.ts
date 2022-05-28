@@ -35,10 +35,11 @@ export enum BreClasses {
     CLASS_INIT = "bre-init",
     CLASS_ACTIVE = "bre-active",
     CLASS_CUSTOM = "bre-custom",
-    CLASS_INACTIVE = "bre-inactive"
+    CLASS_INACTIVE = "bre-inactive",
+    B_CLASS = "bre-b"
 }
 
-export const DELIMITERS = {
+export const Delimiters = {
     HYPHEN: "-",
     DBL_HYPHEN_A: "--",
     DBL_HYPHEN_B: "—",
