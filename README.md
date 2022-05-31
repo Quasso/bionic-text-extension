@@ -18,6 +18,43 @@ A new concept called "Bionic Reading" aims to increase readability of text for h
 
 This extension converts text on-the-fly into Bionic Text. The goal of this extension is partly to measure and adapt the techniques around this, probably on an individual basis, because the original author of this plugin believes that the value of this technique is highly dependent upon a number of factors which must increase legibility of text.
 
+### Currently 'matched' sites
+
+The script will only embed/activate on matching domains for security/privacy guarantees (it obviously helps this is open source, too). Here's the current list, submit an issue if you would like site(s) added:
+
+- https://*.technologyreview.com/*
+- https://*.wired.com/*
+- https://*.linkedin.com/*
+- https://*.medium.com/*
+- https://*.economist.com/*
+- https://*.nytimes.com/*
+- https://*.wsj.com/*
+- https://*.wikipedia.org/*
+- https://*.bbc.com/news/*
+- https://*.bbc.co.uk/news/*
+- https://*.bloomberg.com/*
+- https://*.theepochtimes.com/*
+- https://*.foxnews.com/*
+- https://finance.yahoo.com/*
+- https://news.yahoo.com/*
+- https://*.theguardian.com/*
+- https://*.washingtonpost.com/*
+- https://*.cnbc.com/*
+- https://*.express.co.uk/*
+- https://*.usatoday.com/*
+- https://*.buzzfeed.com/*
+- https://*.thesun.com/*
+- https://*.nypost.com/*
+- https://*.businessinsider.com/*
+- https://*.forbes.com/*
+- https://*.indepedent.co.uk/*
+- https://*.abc.net.au/*
+- https://*.news.com.au/*
+- https://*.mirror.co.uk/*
+- https://*.indiatimes.com/*
+- https://*.huffingtonpost.com/*
+- https://*.nbcnews.com/*
+
 ## Development
 
 If you're a developer and would like to contribute, you are (probably!) welcome!
